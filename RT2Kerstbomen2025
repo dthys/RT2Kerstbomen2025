@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kerstboom Bestellen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f4c3a 0%, #1a5d4a 50%, #0d3d2f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(34, 139, 34, 0.05), transparent);
+            transform: rotate(45deg);
+            pointer-events: none;
+        }
+        
+        .tree-icon {
+            font-size: 4rem;
+            color: #228B22;
+            margin-bottom: 20px;
+            display: block;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #0f4c3a;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #0f4c3a;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #228B22;
+            box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .quantity-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .quantity-btn {
+            background: #228B22;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .quantity-btn:hover {
+            background: #1e7b1e;
+            transform: scale(1.1);
+        }
+        
+        .quantity-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #0f4c3a;
+            min-width: 40px;
+        }
+        
+        .price-display {
+            background: linear-gradient(45deg, #228B22, #32CD32);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-size: 1.3rem;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(34, 139, 34, 0.3);
+        }
+        
+        .order-btn {
+            background: linear-gradient(45deg, #DC143C, #FF6347);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .order-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(220, 20, 60, 0.4);
+        }
+        
+        .order-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 20px;
+            color: #228B22;
+            font-weight: bold;
+        }
+        
+        .success-message {
+            display: none;
+            background: linear-gradient(45deg, #32CD32, #228B22);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        
+        .error-message {
+            display: none;
+            background: #ff4444;
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        
+        .snowflake {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.8);
+            user-select: none;
+            pointer-events: none;
+            font-size: 1rem;
+            animation: fall linear infinite;
+        }
+        
+        @keyframes fall {
+            from {
+                transform: translateY(-100px);
+            }
+            to {
+                transform: translateY(100vh);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                padding: 30px 25px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .tree-icon {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tree-icon">🎄</div>
+        <h1>Kerstboom Bestellen</h1>
+        <p class="subtitle">Bestel je perfecte kerstboom online</p>
+        
+        <form id="orderForm">
+            <div class="form-group">
+                <label for="name">Naam *</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Telefoonnummer *</label>
+                <input type="text" id="phone" name="phone" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Aantal kerstbomen</label>
+                <div class="quantity-group">
+                    <button type="button" class="quantity-btn" onclick="changeQuantity(-1)">-</button>
+                    <span class="quantity-display" id="quantity">1</span>
+                    <button type="button" class="quantity-btn" onclick="changeQuantity(1)">+</button>
+                </div>
+            </div>
+            
+            <div class="price-display">
+                Prijs per boom: €35<br>
+                Totaal: €<span id="totalPrice">35</span>
+            </div>
+            
+            <button type="submit" class="order-btn" id="orderBtn">
+                🎄 Bestellen & Betalen
+            </button>
+            
+            <div class="loading" id="loading">
+                Bestelling wordt verwerkt... ⏳
+            </div>
+            
+            <div class="success-message" id="success">
+                🎉 Bestelling succesvol geplaatst! Je ontvangt een bevestigingsmail.
+            </div>
+            
+            <div class="error-message" id="error">
+                Er ging iets mis. Probeer het opnieuw.
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let quantity = 1;
+        const prices = {
+            small: 25,
+            medium: 35,
+            large: 45
+        };
+
+        // Snowflake animation
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            snowflake.innerHTML = '❄';
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+            snowflake.style.opacity = Math.random();
+            document.body.appendChild(snowflake);
+
+            setTimeout(() => {
+                snowflake.remove();
+            }, 5000);
+        }
+
+        setInterval(createSnowflake, 300);
+
+        function changeQuantity(delta) {
+            quantity = Math.max(1, quantity + delta);
+            document.getElementById('quantity').textContent = quantity;
+            updatePrice();
+        }
+
+        function updatePrice() {
+            const total = pricePerTree * quantity;
+            document.getElementById('totalPrice').textContent = total;
+        }
+
+        // Google Forms integration (much more reliable than Apps Script)
+        const GOOGLE_FORM_URL = 'YOUR_GOOGLE_FORM_URL_HERE'; // You'll replace this with your Google Form action URL
+
+        document.getElementById('orderForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const totalPrice = document.getElementById('totalPrice').textContent;
+            const orderNumber = 'KB' + Date.now();
+
+            // Show loading
+            document.getElementById('orderBtn').disabled = true;
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('success').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+
+            try {
+                // Create form data to submit to Google Forms
+                const formData = new FormData();
+                formData.append('entry.2047649140', name);           // Naam
+                formData.append('entry.236342541', email);           // Email
+                formData.append('entry.1872094456', phone);          // Telefoonnummer
+                formData.append('entry.940252222', quantity);        // Aantal kerstbomen
+                formData.append('entry.204874220', '€' + totalPrice); // Totaalprijs
+                formData.append('entry.157753956', orderNumber);     // Bestelnummer
+
+                // Submit to Google Forms (no-cors to avoid CORS issues)
+                await fetch(GOOGLE_FORM_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                });
+
+                // Show success message
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('success').innerHTML = `
+                    <strong>🎉 Bestelling succesvol geplaatst!</strong><br>
+                    Bestelnummer: ${orderNumber}<br>
+                    Naam: ${name}<br>
+                    Email: ${email}<br>
+                    Aantal: ${quantity} kerstbomen<br>
+                    Totaal: €${totalPrice}<br><br>
+                    <small>Je bestelling is ontvangen en wordt verwerkt!</small>
+                `;
+                document.getElementById('success').style.display = 'block';
+                
+                // Reset form
+                setTimeout(() => {
+                    document.getElementById('orderForm').reset();
+                    quantity = 1;
+                    document.getElementById('quantity').textContent = quantity;
+                    updatePrice();
+                    document.getElementById('success').style.display = 'none';
+                    document.getElementById('orderBtn').disabled = false;
+                }, 8000);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').innerHTML = `
+                    <strong>Er ging iets mis</strong><br>
+                    Probeer het opnieuw of neem contact op.<br>
+                    Bestelnummer voor referentie: ${orderNumber}
+                `;
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('orderBtn').disabled = false;
+            }
+        });
+
+        // Initialize price
+        updatePrice();
+    </script>
+</body>
+</html>
