@@ -323,17 +323,6 @@
             updatePrice();
         }
 
-        function updatePrice() {
-            const total = pricePerTree * quantity;
-            document.getElementById('totalPrice').textContent = total;
-        }
-
-        function changeQuantity(delta) {
-            quantity = Math.max(1, quantity + delta);
-            document.getElementById('quantity').textContent = quantity;
-            updatePrice();
-        }
-
         // Google Forms integration (much more reliable than Apps Script)
         const GOOGLE_FORM_URL = 'YOUR_GOOGLE_FORM_URL_HERE'; // You'll replace this with your Google Form action URL
 
