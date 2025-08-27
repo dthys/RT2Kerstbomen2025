@@ -19,6 +19,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
         }
         
         .container {
@@ -210,10 +211,10 @@
         
         @keyframes fall {
             from {
-                transform: translateY(-100px);
+                transform: translateY(-50px);
             }
             to {
-                transform: translateY(100vh);
+                transform: translateY(calc(100vh + 50px));
             }
         }
         
@@ -295,22 +296,26 @@
             large: 45
         };
 
-        // Snowflake animation
+        // Snowflake animation - optimized to prevent scrolling issues
         function createSnowflake() {
             const snowflake = document.createElement('div');
             snowflake.classList.add('snowflake');
             snowflake.innerHTML = '❄';
             snowflake.style.left = Math.random() * 100 + 'vw';
             snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
-            snowflake.style.opacity = Math.random();
+            snowflake.style.opacity = Math.random() * 0.7;
+            snowflake.style.zIndex = '-1'; // Behind content
             document.body.appendChild(snowflake);
 
             setTimeout(() => {
-                snowflake.remove();
-            }, 5000);
+                if (snowflake.parentNode) {
+                    snowflake.remove();
+                }
+            }, 8000);
         }
 
-        setInterval(createSnowflake, 300);
+        // Create fewer snowflakes to prevent performance issues
+        setInterval(createSnowflake, 800);
 
         function changeQuantity(delta) {
             quantity = Math.max(1, quantity + delta);
@@ -321,6 +326,12 @@
         function updatePrice() {
             const total = pricePerTree * quantity;
             document.getElementById('totalPrice').textContent = total;
+        }
+
+        function changeQuantity(delta) {
+            quantity = Math.max(1, quantity + delta);
+            document.getElementById('quantity').textContent = quantity;
+            updatePrice();
         }
 
         // Google Forms integration (much more reliable than Apps Script)
