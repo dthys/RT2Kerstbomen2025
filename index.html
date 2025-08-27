@@ -307,9 +307,9 @@
                 <input type="text" id="phone" name="phone" required>
             </div>
             
-            <div class="checkbox-group" onclick="toggleInvoice()">
-                <input type="checkbox" id="needsInvoice" name="needsInvoice">
-                <label class="checkbox-label" for="needsInvoice">📄 Ik wil een factuur ontvangen</label>
+            <div class="checkbox-group">
+                <input type="checkbox" id="needsInvoice" name="needsInvoice" onchange="toggleInvoice()">
+                <label class="checkbox-label" for="needsInvoice" onclick="toggleInvoice()">📄 Ik wil een factuur ontvangen</label>
             </div>
             
             <div class="company-fields" id="companyFields">
