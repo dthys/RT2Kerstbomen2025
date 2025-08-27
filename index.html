@@ -198,6 +198,91 @@
             font-weight: bold;
             box-shadow: 0 5px 15px rgba(34, 139, 34, 0.3);
         }
+
+        .payment-section {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid #FFD700;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .payment-section h3 {
+            color: #B8860B;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .iban-display {
+            background: white;
+            border: 2px solid #FFD700;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #B8860B;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .iban-display:hover {
+            background: #fffef0;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(184, 134, 11, 0.2);
+        }
+
+        .copy-button {
+            background: #FFD700;
+            color: #B8860B;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-button:hover {
+            background: #FFC107;
+            transform: scale(1.05);
+        }
+
+        .payment-info {
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.4;
+            margin-top: 15px;
+        }
+
+        .payment-confirmation {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(34, 139, 34, 0.05);
+            border: 2px solid rgba(34, 139, 34, 0.2);
+            border-radius: 8px;
+        }
+
+        .payment-confirmation .checkbox-group {
+            margin-bottom: 0;
+            justify-content: center;
+        }
+
+        .payment-confirmation .checkbox-label {
+            color: #228B22;
+            font-size: 1rem;
+        }
         
         .order-btn {
             background: linear-gradient(45deg, #DC143C, #FF6347);
@@ -212,7 +297,7 @@
             width: 100%;
         }
         
-        .order-btn:hover {
+        .order-btn:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 10px 25px rgba(220, 20, 60, 0.4);
         }
@@ -222,6 +307,7 @@
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
+            opacity: 0.6;
         }
         
         .download-btn {
@@ -302,6 +388,11 @@
             .tree-icon {
                 font-size: 3rem;
             }
+
+            .iban-display {
+                font-size: 0.9rem;
+                padding: 12px;
+            }
         }
     </style>
 </head>
@@ -374,9 +465,30 @@
                 Prijs per boom: €35<br>
                 <strong>Totaal: €<span id="totalPrice">35</span></strong>
             </div>
+
+            <div class="payment-section">
+                <h3>💳 Betaling via Bankoverschrijving</h3>
+                <div class="iban-display" onclick="copyIBAN()">
+                    <div id="ibanNumber">IBAN: [IBAN NUMMER VOLGT]</div>
+                    <button type="button" class="copy-button" onclick="copyIBAN()">📋 Kopiëren</button>
+                </div>
+                <div class="payment-info">
+                    <strong>Instructies:</strong><br>
+                    1. Maak een overschrijving naar bovenstaand IBAN-nummer<br>
+                    2. Bedrag: €<span id="paymentAmount">35</span><br>
+                    3. Vermeld je naam en telefoonnummer in de omschrijving<br>
+                    4. Vink hieronder aan als je de betaling hebt uitgevoerd
+                </div>
+                <div class="payment-confirmation">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="paymentConfirmed" name="paymentConfirmed" onchange="toggleOrderButton()">
+                        <label class="checkbox-label" for="paymentConfirmed">✅ Ik heb de betaling uitgevoerd</label>
+                    </div>
+                </div>
+            </div>
             
-            <button type="submit" class="order-btn" id="orderBtn">
-                🎄 Bestellen & Betalen
+            <button type="submit" class="order-btn" id="orderBtn" disabled>
+                🎄 Bestelling Voltooien
             </button>
             
             <div class="loading" id="loading">
@@ -415,6 +527,7 @@
         function updatePrice() {
             const total = pricePerTree * quantity;
             document.getElementById('totalPrice').textContent = total.toFixed(2);
+            document.getElementById('paymentAmount').textContent = total.toFixed(2);
         }
 
         function changeQuantity(delta) {
@@ -441,6 +554,50 @@
                 document.getElementById('address').required = false;
                 document.getElementById('city').required = false;
                 document.getElementById('postalCode').required = false;
+            }
+        }
+
+        function toggleOrderButton() {
+            const paymentConfirmed = document.getElementById('paymentConfirmed').checked;
+            const orderBtn = document.getElementById('orderBtn');
+            
+            if (paymentConfirmed) {
+                orderBtn.disabled = false;
+                orderBtn.style.background = 'linear-gradient(45deg, #DC143C, #FF6347)';
+            } else {
+                orderBtn.disabled = true;
+                orderBtn.style.background = '#ccc';
+            }
+        }
+
+        async function copyIBAN() {
+            const ibanText = document.getElementById('ibanNumber').textContent;
+            try {
+                await navigator.clipboard.writeText(ibanText);
+                
+                // Show feedback
+                const originalText = document.querySelector('.copy-button').textContent;
+                document.querySelector('.copy-button').textContent = '✅ Gekopieerd!';
+                document.querySelector('.copy-button').style.background = '#32CD32';
+                
+                setTimeout(() => {
+                    document.querySelector('.copy-button').textContent = originalText;
+                    document.querySelector('.copy-button').style.background = '#FFD700';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy IBAN:', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = ibanText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    document.querySelector('.copy-button').textContent = '✅ Gekopieerd!';
+                } catch (fallbackErr) {
+                    console.error('Fallback copy failed:', fallbackErr);
+                }
+                document.body.removeChild(textArea);
             }
         }
 
@@ -543,7 +700,7 @@
             doc.setTextColor(0, 0, 0);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(9);
-            doc.text('Gelieve het factuurbedrag binnen 30 dagen te voldoen.', 20, 220);
+            doc.text('Betaling ontvangen via bankoverschrijving.', 20, 220);
             doc.text('Bij vragen over deze factuur kunt u contact opnemen via info@kerstbomenservice.nl', 20, 228);
             
             // Footer
@@ -573,7 +730,8 @@
                     quantity: orderData.quantity,
                     total_amount: orderData.totalPrice,
                     company_name: orderData.companyName || 'N/A',
-                    needs_invoice: orderData.needsInvoice ? 'Ja' : 'Nee'
+                    needs_invoice: orderData.needsInvoice ? 'Ja' : 'Nee',
+                    payment_confirmed: orderData.paymentConfirmed ? 'Ja' : 'Nee'
                 };
                 
                 await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams, EMAILJS_PUBLIC_KEY);
@@ -608,6 +766,7 @@
             e.preventDefault();
             
             const needsInvoice = document.getElementById('needsInvoice').checked;
+            const paymentConfirmed = document.getElementById('paymentConfirmed').checked;
             const orderNumber = 'KB' + Date.now();
             const totalPrice = (pricePerTree * quantity).toFixed(2);
             
@@ -619,6 +778,7 @@
                 orderNumber: orderNumber,
                 totalPrice: totalPrice,
                 needsInvoice: needsInvoice,
+                paymentConfirmed: paymentConfirmed,
                 companyName: needsInvoice ? document.getElementById('companyName').value : '',
                 vatNumber: needsInvoice ? document.getElementById('vatNumber').value : '',
                 address: needsInvoice ? document.getElementById('address').value : '',
@@ -642,6 +802,7 @@
                 formData.append('entry.204874220', '€' + orderData.totalPrice);
                 formData.append('entry.157753956', orderData.orderNumber);
                 formData.append('entry.1997491153', orderData.needsInvoice ? 'Yes' : 'No');
+                formData.append('entry.1234567890', orderData.paymentConfirmed ? 'Yes' : 'No'); // You'll need to add this field to your Google Form
                 
                 if (needsInvoice) {
                     formData.append('entry.195252341', orderData.companyName);
@@ -677,6 +838,7 @@
                         Email: ${orderData.email}<br>
                         Aantal: ${orderData.quantity} kerstbomen<br>
                         Totaal: €${orderData.totalPrice}<br>
+                        Betaling bevestigd: ${orderData.paymentConfirmed ? 'Ja' : 'Nee'}<br>
                     `;
                     
                     if (needsInvoice && pdfFileName) {
@@ -699,9 +861,11 @@
                         quantity = 1;
                         document.getElementById('quantity').textContent = quantity;
                         document.getElementById('companyFields').classList.remove('show');
+                        document.getElementById('paymentConfirmed').checked = false;
+                        toggleOrderButton();
                         updatePrice();
                         document.getElementById('success').style.display = 'none';
-                        document.getElementById('orderBtn').disabled = false;
+                        document.getElementById('orderBtn').disabled = true;
                     }, 10000);
                 }, 1000);
                 
@@ -718,8 +882,9 @@
             }
         });
 
-        // Initialize price on page load
+        // Initialize price and button state on page load
         updatePrice();
+        toggleOrderButton();
     </script>
 </body>
 </html>
