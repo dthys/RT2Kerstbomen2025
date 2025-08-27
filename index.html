@@ -290,8 +290,8 @@
         let quantity = 1;
         const pricePerTree = 35;
         
-        // Google Form URL - FIXED VERSION
-        const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfexnYbGgKdQ8E72cWlwHTlvHRuHe1gBOIZNZ6lTPpSo2XDSA/formResponse';
+        // Google Form URL - CORRECT URL FROM YOUR FORM SOURCE
+        const GOOGLE_FORM_URL = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLScIGSrCx53X3yTJIrydkwQL8AkFHOMRkrwo2c5FtNz2seK9SQ/formResponse';
         
         // Functions
         function updatePrice() {
@@ -342,14 +342,17 @@
             document.getElementById('error').style.display = 'none';
 
             try {
-                // Create form data with correct field IDs
+                // Create form data with correct field IDs and form URL
                 const formData = new FormData();
                 formData.append('entry.2047649140', name);           // Naam
                 formData.append('entry.236342541', email);           // Email  
                 formData.append('entry.1872094456', phone);          // Telefoonnummer
-                formData.append('entry.940252222', quantity);        // Aantal kerstbomen
+                formData.append('entry.940252222', quantity.toString()); // Aantal kerstbomen
                 formData.append('entry.204874220', '€' + totalPrice); // Totaalprijs
                 formData.append('entry.157753956', orderNumber);     // Bestelnummer
+
+                console.log('Submitting to form:', GOOGLE_FORM_URL);
+                console.log('Order data:', { name, email, phone, quantity, totalPrice, orderNumber });
 
                 // Submit to Google Forms
                 const response = await fetch(GOOGLE_FORM_URL, {
@@ -358,17 +361,19 @@
                     body: formData
                 });
 
+                console.log('Form submitted successfully!');
+
                 // Show success (no-cors doesn't return status, so we assume success)
                 setTimeout(() => {
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('success').innerHTML = `
-                        <strong>🎉 Bestelling succesvol geplaatst!</strong><br>
+                        <strong>🎉 Bestelling verstuurd!</strong><br>
                         Bestelnummer: ${orderNumber}<br>
                         Naam: ${name}<br>
                         Email: ${email}<br>
                         Aantal: ${quantity} kerstbomen<br>
                         Totaal: €${totalPrice}<br><br>
-                        <small>Je bestelling is ontvangen en wordt verwerkt!</small>
+                        <small>Check je Google Sheet - de bestelling zou nu moeten verschijnen!</small>
                     `;
                     document.getElementById('success').style.display = 'block';
                     
@@ -380,7 +385,7 @@
                         updatePrice();
                         document.getElementById('success').style.display = 'none';
                         document.getElementById('orderBtn').disabled = false;
-                    }, 8000);
+                    }, 10000);
                 }, 1000);
                 
             } catch (error) {
