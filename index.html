@@ -19,7 +19,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            overflow-x: hidden; /* Prevent horizontal scrolling */
+            overflow-x: hidden;
         }
         
         .container {
@@ -83,8 +83,7 @@
         
         input[type="text"],
         input[type="email"],
-        input[type="number"],
-        select {
+        input[type="number"] {
             width: 100%;
             padding: 15px 20px;
             border: 2px solid #e0e0e0;
@@ -94,8 +93,7 @@
             background: white;
         }
         
-        input:focus,
-        select:focus {
+        input:focus {
             outline: none;
             border-color: #228B22;
             box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.1);
@@ -158,8 +156,6 @@
             cursor: pointer;
             transition: all 0.3s ease;
             width: 100%;
-            position: relative;
-            overflow: hidden;
         }
         
         .order-btn:hover {
@@ -201,20 +197,21 @@
         }
         
         .snowflake {
-            position: absolute;
-            color: rgba(255, 255, 255, 0.8);
+            position: fixed;
+            color: rgba(255, 255, 255, 0.6);
             user-select: none;
             pointer-events: none;
             font-size: 1rem;
+            z-index: -1;
             animation: fall linear infinite;
         }
         
         @keyframes fall {
             from {
-                transform: translateY(-50px);
+                transform: translateY(-10px);
             }
             to {
-                transform: translateY(calc(100vh + 50px));
+                transform: translateY(100vh);
             }
         }
         
@@ -289,33 +286,18 @@
     </div>
 
     <script>
+        // Variables
         let quantity = 1;
-        const prices = {
-            small: 25,
-            medium: 35,
-            large: 45
-        };
-
-        // Snowflake animation - optimized to prevent scrolling issues
-        function createSnowflake() {
-            const snowflake = document.createElement('div');
-            snowflake.classList.add('snowflake');
-            snowflake.innerHTML = '❄';
-            snowflake.style.left = Math.random() * 100 + 'vw';
-            snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
-            snowflake.style.opacity = Math.random() * 0.7;
-            snowflake.style.zIndex = '-1'; // Behind content
-            document.body.appendChild(snowflake);
-
-            setTimeout(() => {
-                if (snowflake.parentNode) {
-                    snowflake.remove();
-                }
-            }, 8000);
+        const pricePerTree = 35;
+        
+        // Google Form URL - FIXED VERSION
+        const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfexnYbGgKdQ8E72cWlwHTlvHRuHe1gBOIZNZ6lTPpSo2XDSA/formResponse';
+        
+        // Functions
+        function updatePrice() {
+            const total = pricePerTree * quantity;
+            document.getElementById('totalPrice').textContent = total;
         }
-
-        // Create fewer snowflakes to prevent performance issues
-        setInterval(createSnowflake, 800);
 
         function changeQuantity(delta) {
             quantity = Math.max(1, quantity + delta);
@@ -323,13 +305,30 @@
             updatePrice();
         }
 
-        // Google Forms integration (much more reliable than Apps Script)
-        const GOOGLE_FORM_URL = 'YOUR_GOOGLE_FORM_URL_HERE'; // You'll replace this with your Google Form action URL
+        // Minimal snowflake animation to prevent scrolling issues
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            snowflake.innerHTML = '❄';
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            snowflake.style.animationDuration = Math.random() * 3 + 4 + 's';
+            snowflake.style.opacity = Math.random() * 0.5;
+            document.body.appendChild(snowflake);
 
+            setTimeout(() => {
+                if (snowflake && snowflake.parentNode) {
+                    snowflake.remove();
+                }
+            }, 10000);
+        }
+
+        // Create only a few snowflakes
+        setInterval(createSnowflake, 1500);
+
+        // Form submission
         document.getElementById('orderForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Get form data
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
             const phone = document.getElementById('phone').value;
@@ -343,44 +342,46 @@
             document.getElementById('error').style.display = 'none';
 
             try {
-                // Create form data to submit to Google Forms
+                // Create form data with correct field IDs
                 const formData = new FormData();
                 formData.append('entry.2047649140', name);           // Naam
-                formData.append('entry.236342541', email);           // Email
+                formData.append('entry.236342541', email);           // Email  
                 formData.append('entry.1872094456', phone);          // Telefoonnummer
                 formData.append('entry.940252222', quantity);        // Aantal kerstbomen
                 formData.append('entry.204874220', '€' + totalPrice); // Totaalprijs
                 formData.append('entry.157753956', orderNumber);     // Bestelnummer
 
-                // Submit to Google Forms (no-cors to avoid CORS issues)
-                await fetch(GOOGLE_FORM_URL, {
+                // Submit to Google Forms
+                const response = await fetch(GOOGLE_FORM_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     body: formData
                 });
 
-                // Show success message
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('success').innerHTML = `
-                    <strong>🎉 Bestelling succesvol geplaatst!</strong><br>
-                    Bestelnummer: ${orderNumber}<br>
-                    Naam: ${name}<br>
-                    Email: ${email}<br>
-                    Aantal: ${quantity} kerstbomen<br>
-                    Totaal: €${totalPrice}<br><br>
-                    <small>Je bestelling is ontvangen en wordt verwerkt!</small>
-                `;
-                document.getElementById('success').style.display = 'block';
-                
-                // Reset form
+                // Show success (no-cors doesn't return status, so we assume success)
                 setTimeout(() => {
-                    document.getElementById('orderForm').reset();
-                    quantity = 1;
-                    document.getElementById('quantity').textContent = quantity;
-                    updatePrice();
-                    document.getElementById('success').style.display = 'none';
-                    document.getElementById('orderBtn').disabled = false;
-                }, 8000);
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('success').innerHTML = `
+                        <strong>🎉 Bestelling succesvol geplaatst!</strong><br>
+                        Bestelnummer: ${orderNumber}<br>
+                        Naam: ${name}<br>
+                        Email: ${email}<br>
+                        Aantal: ${quantity} kerstbomen<br>
+                        Totaal: €${totalPrice}<br><br>
+                        <small>Je bestelling is ontvangen en wordt verwerkt!</small>
+                    `;
+                    document.getElementById('success').style.display = 'block';
+                    
+                    // Reset form after delay
+                    setTimeout(() => {
+                        document.getElementById('orderForm').reset();
+                        quantity = 1;
+                        document.getElementById('quantity').textContent = quantity;
+                        updatePrice();
+                        document.getElementById('success').style.display = 'none';
+                        document.getElementById('orderBtn').disabled = false;
+                    }, 8000);
+                }, 1000);
                 
             } catch (error) {
                 console.error('Error:', error);
@@ -395,7 +396,7 @@
             }
         });
 
-        // Initialize price
+        // Initialize price on page load
         updatePrice();
     </script>
 </body>
