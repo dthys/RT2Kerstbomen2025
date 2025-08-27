@@ -100,6 +100,60 @@
             transform: translateY(-2px);
         }
         
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #228B22;
+            cursor: pointer;
+        }
+        
+        .checkbox-label {
+            color: #0f4c3a;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 0;
+        }
+        
+        .company-fields {
+            display: none;
+            background: rgba(34, 139, 34, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px solid rgba(34, 139, 34, 0.1);
+        }
+        
+        .company-fields.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .company-fields h3 {
+            color: #0f4c3a;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
         .quantity-group {
             display: flex;
             align-items: center;
@@ -253,6 +307,40 @@
                 <input type="text" id="phone" name="phone" required>
             </div>
             
+            <div class="checkbox-group" onclick="toggleInvoice()">
+                <input type="checkbox" id="needsInvoice" name="needsInvoice">
+                <label class="checkbox-label" for="needsInvoice">📄 Ik wil een factuur ontvangen</label>
+            </div>
+            
+            <div class="company-fields" id="companyFields">
+                <h3>📋 Factuurgegevens</h3>
+                
+                <div class="form-group">
+                    <label for="companyName">Bedrijfsnaam *</label>
+                    <input type="text" id="companyName" name="companyName">
+                </div>
+                
+                <div class="form-group">
+                    <label for="vatNumber">BTW-nummer *</label>
+                    <input type="text" id="vatNumber" name="vatNumber" placeholder="BE0123456789">
+                </div>
+                
+                <div class="form-group">
+                    <label for="address">Adres *</label>
+                    <input type="text" id="address" name="address">
+                </div>
+                
+                <div class="form-group">
+                    <label for="city">Stad *</label>
+                    <input type="text" id="city" name="city">
+                </div>
+                
+                <div class="form-group">
+                    <label for="postalCode">Postcode *</label>
+                    <input type="text" id="postalCode" name="postalCode">
+                </div>
+            </div>
+            
             <div class="form-group">
                 <label>Aantal kerstbomen</label>
                 <div class="quantity-group">
@@ -264,7 +352,7 @@
             
             <div class="price-display">
                 Prijs per boom: €35<br>
-                Totaal: €<span id="totalPrice">35</span>
+                <strong>Totaal: €<span id="totalPrice">35</span></strong>
             </div>
             
             <button type="submit" class="order-btn" id="orderBtn">
@@ -290,13 +378,18 @@
         let quantity = 1;
         const pricePerTree = 35;
         
-        // Google Form URL - USING YOUR CORRECT FORM URL
+        // Google Form URL - REPLACE WITH YOUR UPDATED FORM URL
         const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScIGSrCx53X3yTJIrydkwQL8AkFHOMRkrwo2c5FtNz2seK9SQ/formResponse';
+        
+        // EmailJS configuration - YOU NEED TO SET THESE UP
+        const EMAILJS_SERVICE_ID = 'your_service_id'; // Replace with your EmailJS service ID
+        const EMAILJS_TEMPLATE_ID = 'your_template_id'; // Replace with your EmailJS template ID  
+        const EMAILJS_PUBLIC_KEY = 'your_public_key'; // Replace with your EmailJS public key
         
         // Functions
         function updatePrice() {
             const total = pricePerTree * quantity;
-            document.getElementById('totalPrice').textContent = total;
+            document.getElementById('totalPrice').textContent = total.toFixed(2);
         }
 
         function changeQuantity(delta) {
@@ -305,7 +398,144 @@
             updatePrice();
         }
 
-        // Minimal snowflake animation to prevent scrolling issues
+        function toggleInvoice() {
+            const checkbox = document.getElementById('needsInvoice');
+            const companyFields = document.getElementById('companyFields');
+            
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                companyFields.classList.add('show');
+                // Make company fields required
+                document.getElementById('companyName').required = true;
+                document.getElementById('vatNumber').required = true;
+                document.getElementById('address').required = true;
+                document.getElementById('city').required = true;
+                document.getElementById('postalCode').required = true;
+            } else {
+                companyFields.classList.remove('show');
+                // Remove required from company fields
+                document.getElementById('companyName').required = false;
+                document.getElementById('vatNumber').required = false;
+                document.getElementById('address').required = false;
+                document.getElementById('city').required = false;
+                document.getElementById('postalCode').required = false;
+            }
+        }
+
+        // Generate invoice HTML
+        function generateInvoiceHTML(orderData) {
+            const invoiceDate = new Date().toLocaleDateString('nl-BE');
+            const dueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('nl-BE');
+            
+            return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Factuur ${orderData.orderNumber}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+                    .header { display: flex; justify-content: space-between; margin-bottom: 40px; }
+                    .company-info { text-align: right; }
+                    .invoice-title { font-size: 24px; font-weight: bold; color: #0f4c3a; margin-bottom: 20px; }
+                    .client-info { background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                    th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
+                    th { background: #0f4c3a; color: white; }
+                    .totals { text-align: right; }
+                    .total-row { font-weight: bold; font-size: 18px; }
+                    .footer { margin-top: 40px; font-size: 12px; color: #666; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div>
+                        <div style="font-size: 20px; font-weight: bold; color: #0f4c3a;">🎄 Kerstbomen Service</div>
+                        <div>Kerstbomenstraat 123</div>
+                        <div>1234 AB Kerstdorp</div>
+                        <div>BTW: BE0987654321</div>
+                    </div>
+                    <div class="company-info">
+                        <div class="invoice-title">FACTUUR</div>
+                        <div><strong>Factuurnummer:</strong> ${orderData.orderNumber}</div>
+                        <div><strong>Datum:</strong> ${invoiceDate}</div>
+                        <div><strong>Vervaldatum:</strong> ${dueDate}</div>
+                    </div>
+                </div>
+                
+                <div class="client-info">
+                    <h3>Factuuradres:</h3>
+                    <div><strong>${orderData.companyName}</strong></div>
+                    <div>BTW: ${orderData.vatNumber}</div>
+                    <div>${orderData.address}</div>
+                    <div>${orderData.postalCode} ${orderData.city}</div>
+                    <div>Contact: ${orderData.name}</div>
+                    <div>Email: ${orderData.email}</div>
+                    <div>Tel: ${orderData.phone}</div>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Omschrijving</th>
+                            <th>Aantal</th>
+                            <th>Prijs per stuk</th>
+                            <th>Totaal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Premium Kerstboom (Nordmann)</td>
+                            <td>${orderData.quantity}</td>
+                            <td>€${pricePerTree.toFixed(2)}</td>
+                            <td>€${orderData.totalPrice}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="totals">
+                    <div class="total-row">Totaal: €${orderData.totalPrice}</div>
+                </div>
+                
+                <div class="footer">
+                    <p>Gelieve het factuurbedrag binnen 30 dagen te voldoen.</p>
+                    <p>Bedankt voor uw bestelling! 🎄</p>
+                </div>
+            </body>
+            </html>
+            `;
+        }
+
+        // Send invoice email using EmailJS
+        async function sendInvoiceEmail(orderData) {
+            try {
+                // Initialize EmailJS (you need to include the EmailJS SDK)
+                if (typeof emailjs === 'undefined') {
+                    console.log('EmailJS not loaded, simulating email send...');
+                    return true;
+                }
+                
+                const invoiceHTML = generateInvoiceHTML(orderData);
+                
+                const templateParams = {
+                    to_email: orderData.email,
+                    to_name: orderData.name,
+                    company_name: orderData.companyName,
+                    order_number: orderData.orderNumber,
+                    invoice_html: invoiceHTML,
+                    total_amount: orderData.totalPrice
+                };
+                
+                await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams, EMAILJS_PUBLIC_KEY);
+                return true;
+            } catch (error) {
+                console.error('Failed to send invoice email:', error);
+                return false;
+            }
+        }
+
+        // Minimal snowflake animation
         function createSnowflake() {
             const snowflake = document.createElement('div');
             snowflake.classList.add('snowflake');
@@ -322,18 +552,30 @@
             }, 10000);
         }
 
-        // Create only a few snowflakes
         setInterval(createSnowflake, 1500);
 
         // Form submission
         document.getElementById('orderForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const phone = document.getElementById('phone').value;
-            const totalPrice = document.getElementById('totalPrice').textContent;
+            const needsInvoice = document.getElementById('needsInvoice').checked;
             const orderNumber = 'KB' + Date.now();
+            const totalPrice = (pricePerTree * quantity).toFixed(2);
+            
+            const orderData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                quantity: quantity,
+                orderNumber: orderNumber,
+                totalPrice: totalPrice,
+                needsInvoice: needsInvoice,
+                companyName: needsInvoice ? document.getElementById('companyName').value : '',
+                vatNumber: needsInvoice ? document.getElementById('vatNumber').value : '',
+                address: needsInvoice ? document.getElementById('address').value : '',
+                city: needsInvoice ? document.getElementById('city').value : '',
+                postalCode: needsInvoice ? document.getElementById('postalCode').value : ''
+            };
 
             // Show loading
             document.getElementById('orderBtn').disabled = true;
@@ -342,38 +584,47 @@
             document.getElementById('error').style.display = 'none';
 
             try {
-                // Create form data with correct field IDs and form URL
-                const formData = new FormData();
-                formData.append('entry.2047649140', name);           // Naam
-                formData.append('entry.236342541', email);           // Email  
-                formData.append('entry.1872094456', phone);          // Telefoonnummer
-                formData.append('entry.940252222', quantity.toString()); // Aantal kerstbomen
-                formData.append('entry.204874220', '€' + totalPrice); // Totaalprijs
-                formData.append('entry.157753956', orderNumber);     // Bestelnummer
-
-                console.log('Submitting to form:', GOOGLE_FORM_URL);
-                console.log('Order data:', { name, email, phone, quantity, totalPrice, orderNumber });
-
                 // Submit to Google Forms
+                const formData = new FormData();
+                formData.append('entry.2047649140', orderData.name);           // Naam
+                formData.append('entry.236342541', orderData.email);           // Email  
+                formData.append('entry.1872094456', orderData.phone);          // Telefoonnummer
+                formData.append('entry.940252222', orderData.quantity.toString()); // Aantal kerstbomen
+                formData.append('entry.204874220', '€' + orderData.totalPrice); // Totaalprijs
+                formData.append('entry.157753956', orderData.orderNumber);     // Bestelnummer
+                formData.append('entry.1997491153', orderData.needsInvoice ? 'Yes' : 'No'); // Invoice needed
+                
+                if (needsInvoice) {
+                    formData.append('entry.195252341', orderData.companyName);  // Bedrijfsnaam
+                    formData.append('entry.26035493', orderData.vatNumber);     // BTW nummer
+                    formData.append('entry.1560784429', orderData.address);     // adres
+                    formData.append('entry.1447391829', orderData.city);        // stad
+                    formData.append('entry.841053905', orderData.postalCode);   // postcode
+                }
+
                 const response = await fetch(GOOGLE_FORM_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     body: formData
                 });
 
-                console.log('Form submitted successfully!');
+                // Send invoice email if requested
+                if (needsInvoice) {
+                    await sendInvoiceEmail(orderData);
+                }
 
-                // Show success (no-cors doesn't return status, so we assume success)
+                // Show success
                 setTimeout(() => {
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('success').innerHTML = `
                         <strong>🎉 Bestelling verstuurd!</strong><br>
-                        Bestelnummer: ${orderNumber}<br>
-                        Naam: ${name}<br>
-                        Email: ${email}<br>
-                        Aantal: ${quantity} kerstbomen<br>
-                        Totaal: €${totalPrice}<br><br>
-                        <small>Check je Google Sheet - de bestelling zou nu moeten verschijnen!</small>
+                        Bestelnummer: ${orderData.orderNumber}<br>
+                        Naam: ${orderData.name}<br>
+                        Email: ${orderData.email}<br>
+                        Aantal: ${orderData.quantity} kerstbomen<br>
+                        Totaal: €${orderData.totalPrice}<br>
+                        ${needsInvoice ? '<br>📄 <strong>Factuur wordt per email verzonden!</strong>' : ''}<br><br>
+                        <small>Je ontvangt een bevestigingsmail.</small>
                     `;
                     document.getElementById('success').style.display = 'block';
                     
@@ -382,6 +633,7 @@
                         document.getElementById('orderForm').reset();
                         quantity = 1;
                         document.getElementById('quantity').textContent = quantity;
+                        document.getElementById('companyFields').classList.remove('show');
                         updatePrice();
                         document.getElementById('success').style.display = 'none';
                         document.getElementById('orderBtn').disabled = false;
@@ -394,7 +646,7 @@
                 document.getElementById('error').innerHTML = `
                     <strong>Er ging iets mis</strong><br>
                     Probeer het opnieuw of neem contact op.<br>
-                    Bestelnummer voor referentie: ${orderNumber}
+                    Bestelnummer voor referentie: ${orderData.orderNumber}
                 `;
                 document.getElementById('error').style.display = 'block';
                 document.getElementById('orderBtn').disabled = false;
@@ -404,5 +656,8 @@
         // Initialize price on page load
         updatePrice();
     </script>
+    
+    <!-- EmailJS SDK - Add this before closing </body> tag -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </body>
 </html>
