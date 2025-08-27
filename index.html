@@ -402,8 +402,7 @@
             const checkbox = document.getElementById('needsInvoice');
             const companyFields = document.getElementById('companyFields');
             
-            checkbox.checked = !checkbox.checked;
-            
+            // Don't manually toggle - just read the current state
             if (checkbox.checked) {
                 companyFields.classList.add('show');
                 // Make company fields required
@@ -422,7 +421,6 @@
                 document.getElementById('postalCode').required = false;
             }
         }
-
         // Generate invoice HTML
         function generateInvoiceHTML(orderData) {
             const invoiceDate = new Date().toLocaleDateString('nl-BE');
