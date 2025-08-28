@@ -310,26 +310,6 @@
             opacity: 0.6;
         }
         
-        .download-btn {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 10px;
-            display: inline-block;
-            text-decoration: none;
-        }
-        
-        .download-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
-        }
-        
         .loading {
             display: none;
             margin-top: 20px;
@@ -505,23 +485,13 @@
         </form>
     </div>
 
-    <!-- jsPDF CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- EmailJS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
     <script>
         // Variables
         let quantity = 1;
         const pricePerTree = 35;
         
-        // Google Form URL - REPLACE WITH YOUR UPDATED FORM URL
+        // Google Form URL - REPLACE WITH YOUR ACTUAL FORM URL
         const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScIGSrCx53X3yTJIrydkwQL8AkFHOMRkrwo2c5FtNz2seK9SQ/formResponse';
-        
-        // EmailJS configuration - YOU NEED TO SET THESE UP
-        const EMAILJS_SERVICE_ID = 'service_gsk22mt';
-        const EMAILJS_TEMPLATE_ID = 'template_398larb';
-        const EMAILJS_PUBLIC_KEY = '3ULrV9IguZAmHnrR9';
         
         // Functions
         function updatePrice() {
@@ -601,147 +571,6 @@
             }
         }
 
-        // Generate PDF Invoice
-        function generateInvoicePDF(orderData) {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            const invoiceDate = new Date().toLocaleDateString('nl-BE');
-            const dueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('nl-BE');
-            
-            // Set font
-            doc.setFont('helvetica');
-            
-            // Header with Christmas tree
-            doc.setFontSize(24);
-            doc.setTextColor(15, 76, 58); // Dark green
-            doc.text('🎄 FACTUUR', 20, 30);
-            
-            // Company info (left side)
-            doc.setFontSize(12);
-            doc.setTextColor(0, 0, 0);
-            doc.text('Kerstbomen Service BV', 20, 50);
-            doc.text('Kerstbomenstraat 123', 20, 58);
-            doc.text('1234 AB Kerstdorp', 20, 66);
-            doc.text('Nederland', 20, 74);
-            doc.text('BTW: NL123456789B01', 20, 82);
-            doc.text('Tel: +31 12 345 6789', 20, 90);
-            
-            // Invoice details (right side)
-            doc.setFontSize(10);
-            doc.text('Factuurnummer:', 130, 50);
-            doc.setFont('helvetica', 'bold');
-            doc.text(orderData.orderNumber, 170, 50);
-            
-            doc.setFont('helvetica', 'normal');
-            doc.text('Factuurdatum:', 130, 58);
-            doc.text(invoiceDate, 170, 58);
-            
-            doc.text('Vervaldatum:', 130, 66);
-            doc.text(dueDate, 170, 66);
-            
-            // Customer info box
-            doc.setFillColor(240, 248, 255);
-            doc.rect(20, 105, 170, 35, 'F');
-            doc.setTextColor(15, 76, 58);
-            doc.setFontSize(12);
-            doc.setFont('helvetica', 'bold');
-            doc.text('FACTUURADRES', 25, 115);
-            
-            doc.setFont('helvetica', 'normal');
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(10);
-            
-            if (orderData.needsInvoice) {
-                doc.setFont('helvetica', 'bold');
-                doc.text(orderData.companyName, 25, 125);
-                doc.setFont('helvetica', 'normal');
-                doc.text(`BTW: ${orderData.vatNumber}`, 25, 132);
-                doc.text(orderData.address, 25, 139);
-                doc.text(`${orderData.postalCode} ${orderData.city}`, 25, 146);
-            } else {
-                doc.text(orderData.name, 25, 125);
-                doc.text(orderData.email, 25, 132);
-                doc.text(orderData.phone, 25, 139);
-            }
-            
-            // Table header
-            doc.setFillColor(15, 76, 58);
-            doc.rect(20, 160, 170, 12, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(10);
-            doc.text('OMSCHRIJVING', 25, 168);
-            doc.text('AANTAL', 100, 168);
-            doc.text('PRIJS', 130, 168);
-            doc.text('TOTAAL', 160, 168);
-            
-            // Table content
-            doc.setTextColor(0, 0, 0);
-            doc.setFont('helvetica', 'normal');
-            doc.text('Premium Kerstboom (Nordmann)', 25, 180);
-            doc.text(orderData.quantity.toString(), 105, 180);
-            doc.text(`€${pricePerTree.toFixed(2)}`, 130, 180);
-            doc.text(`€${orderData.totalPrice}`, 160, 180);
-            
-            // Line under item
-            doc.setDrawColor(200, 200, 200);
-            doc.line(20, 185, 190, 185);
-            
-            // Total
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(12);
-            doc.text('TOTAAL BEDRAG:', 130, 200);
-            doc.setFontSize(14);
-            doc.setTextColor(15, 76, 58);
-            doc.text(`€${orderData.totalPrice}`, 160, 200);
-            
-            // Payment terms
-            doc.setTextColor(0, 0, 0);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(9);
-            doc.text('Betaling ontvangen via bankoverschrijving.', 20, 220);
-            doc.text('Bij vragen over deze factuur kunt u contact opnemen via info@kerstbomenservice.nl', 20, 228);
-            
-            // Footer
-            doc.setFontSize(10);
-            doc.setTextColor(15, 76, 58);
-            doc.text('Bedankt voor uw bestelling! 🎄', 20, 250);
-            
-            // Save the PDF
-            const fileName = `Factuur_${orderData.orderNumber}_${orderData.name.replace(/\s+/g, '_')}.pdf`;
-            doc.save(fileName);
-            
-            return fileName;
-        }
-
-        // Send confirmation email using EmailJS
-        async function sendConfirmationEmail(orderData) {
-            try {
-                if (typeof emailjs === 'undefined') {
-                    console.log('EmailJS not loaded');
-                    return false;
-                }
-                
-                const templateParams = {
-                    to_email: orderData.email,
-                    to_name: orderData.name,
-                    order_number: orderData.orderNumber,
-                    quantity: orderData.quantity,
-                    total_amount: orderData.totalPrice,
-                    company_name: orderData.companyName || 'N/A',
-                    needs_invoice: orderData.needsInvoice ? 'Ja' : 'Nee',
-                    payment_confirmed: orderData.paymentConfirmed ? 'Ja' : 'Nee'
-                };
-                
-                await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams, EMAILJS_PUBLIC_KEY);
-                return true;
-            } catch (error) {
-                console.error('Failed to send confirmation email:', error);
-                return false;
-            }
-        }
-
         // Snowflake animation
         function createSnowflake() {
             const snowflake = document.createElement('div');
@@ -802,7 +631,7 @@
                 formData.append('entry.204874220', '€' + orderData.totalPrice);
                 formData.append('entry.157753956', orderData.orderNumber);
                 formData.append('entry.1997491153', orderData.needsInvoice ? 'Yes' : 'No');
-                formData.append('entry.1234567890', orderData.paymentConfirmed ? 'Yes' : 'No'); // You'll need to add this field to your Google Form
+                formData.append('entry.1234567890', orderData.paymentConfirmed ? 'Yes' : 'No');
                 
                 if (needsInvoice) {
                     formData.append('entry.195252341', orderData.companyName);
@@ -818,15 +647,6 @@
                     body: formData
                 });
 
-                // Send confirmation email
-                await sendConfirmationEmail(orderData);
-
-                // Generate and download PDF if invoice requested
-                let pdfFileName = '';
-                if (needsInvoice) {
-                    pdfFileName = generateInvoicePDF(orderData);
-                }
-
                 // Show success message
                 setTimeout(() => {
                     document.getElementById('loading').style.display = 'none';
@@ -838,18 +658,8 @@
                         Email: ${orderData.email}<br>
                         Aantal: ${orderData.quantity} kerstbomen<br>
                         Totaal: €${orderData.totalPrice}<br>
-                        Betaling bevestigd: ${orderData.paymentConfirmed ? 'Ja' : 'Nee'}<br>
-                    `;
-                    
-                    if (needsInvoice && pdfFileName) {
-                        successMessage += `
-                            <br>📄 <strong>Factuur PDF gedownload!</strong><br>
-                            <small>Check je Downloads map voor: ${pdfFileName}</small><br>
-                        `;
-                    }
-                    
-                    successMessage += `
-                        <br><small>Je ontvangt ook een bevestigingsmail.</small>
+                        Betaling bevestigd: ${orderData.paymentConfirmed ? 'Ja' : 'Nee'}<br><br>
+                        <small>📧 Je ontvangt automatisch een bevestigingsmail${needsInvoice ? ' met factuur PDF' : ''}!</small>
                     `;
                     
                     document.getElementById('success').innerHTML = successMessage;
@@ -866,7 +676,7 @@
                         updatePrice();
                         document.getElementById('success').style.display = 'none';
                         document.getElementById('orderBtn').disabled = true;
-                    }, 10000);
+                    }, 8000);
                 }, 1000);
                 
             } catch (error) {
