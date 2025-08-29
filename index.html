@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==">
     <title>Kerstboom Bestellen / Commander Sapin de Noël</title>
     <style>
         * {
@@ -515,6 +516,9 @@
                 </div>
             </div>
             
+            <!-- Hidden field to submit the selected language -->
+            <input type="hidden" id="selectedLanguage" name="selectedLanguage" value="nl">
+            
             <button type="submit" class="order-btn" id="orderBtn" disabled data-text="order_button">
                 🎄 Bestelling Voltooien
             </button>
@@ -617,6 +621,9 @@
                 btn.classList.remove('active');
             });
             document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+            
+            // Update hidden language field
+            document.getElementById('selectedLanguage').value = lang;
             
             // Update all texts
             document.querySelectorAll('[data-text]').forEach(element => {
@@ -777,17 +784,30 @@
             document.getElementById('error').style.display = 'none';
 
             try {
-                // Submit to Google Forms
+                // Submit to Google Forms with correct entry IDs
                 const formData = new FormData();
-                formData.append('entry.2047649140', orderData.name);
-                formData.append('entry.236342541', orderData.email);
-                formData.append('entry.1872094456', orderData.phone);
-                formData.append('entry.940252222', orderData.quantity.toString());
-                formData.append('entry.204874220', '€' + orderData.totalPrice);
-                formData.append('entry.157753956', orderData.orderNumber);
-                formData.append('entry.1997491153', orderData.needsInvoice ? 'Yes' : 'No');
-                formData.append('entry.1234567890', orderData.paymentConfirmed ? 'Yes' : 'No');
-                formData.append('entry.987654321', orderData.language.toUpperCase());
+                formData.append('entry.2047649140', orderData.name);         // Naam
+                formData.append('entry.236342541', orderData.email);         // Email
+                formData.append('entry.1872094456', orderData.phone);        // Telefoonnummer
+                formData.append('entry.940252222', orderData.quantity.toString()); // Aantal kerstbomen
+                formData.append('entry.204874220', '€' + orderData.totalPrice);    // Totaalprijs
+                formData.append('entry.157753956', orderData.orderNumber);   // Bestelnummer
+                formData.append('entry.1997491153', orderData.needsInvoice ? 'Yes' : 'No'); // Invoice needed
+                formData.append('entry.927105195', currentLanguage.toUpperCase()); // Language
+                
+                if (needsInvoice) {
+                    formData.append('entry.195252341', orderData.companyName);   // Bedrijfsnaam
+                    formData.append('entry.26035493', orderData.vatNumber);     // BTW nummer
+                    formData.append('entry.1560784429', orderData.address);     // adres
+                    formData.append('entry.1447391829', orderData.city);        // stad
+                    formData.append('entry.841053905', orderData.postalCode);   // postcode
+                }
+
+                await fetch(GOOGLE_FORM_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                });
                 
                 if (needsInvoice) {
                     formData.append('entry.195252341', orderData.companyName);
