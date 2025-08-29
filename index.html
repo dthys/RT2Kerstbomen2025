@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kerstboom Bestellen</title>
+    <title>Kerstboom Bestellen / Commander Sapin de Noël</title>
     <style>
         * {
             margin: 0;
@@ -45,6 +45,40 @@
             background: linear-gradient(45deg, transparent, rgba(34, 139, 34, 0.05), transparent);
             transform: rotate(45deg);
             pointer-events: none;
+        }
+
+        .language-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 25px;
+            padding: 5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .lang-btn.active {
+            background: #228B22;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .lang-btn:hover:not(.active) {
+            background: rgba(34, 139, 34, 0.1);
+            color: #228B22;
         }
         
         .logo {
@@ -368,74 +402,86 @@
             }
             
             .logo {
-            width: 100px;
+                width: 100px;
             }
 
             .iban-display {
                 font-size: 0.9rem;
                 padding: 12px;
             }
+
+            .language-switcher {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="language-switcher">
+            <button class="lang-btn active" onclick="switchLanguage('nl')" data-lang="nl">NL</button>
+            <button class="lang-btn" onclick="switchLanguage('fr')" data-lang="fr">FR</button>
+        </div>
+
         <img src="https://i.ibb.co/4RYgfdSd/cropped-logortbround.png" alt="RT2 Logo" class="logo">
-        <h1>Kerstboom Bestellen</h1>
-        <p class="subtitle">Bestel je kerstboom van RT2 hier</p>
+        <h1 data-text="title">Kerstboom Bestellen</h1>
+        <p class="subtitle" data-text="subtitle">Bestel je kerstboom van RT2 hier</p>
         
         <form id="orderForm">
             <div class="form-group">
-                <label for="name">Naam *</label>
+                <label for="name" data-text="name_label">Naam *</label>
                 <input type="text" id="name" name="name" required>
             </div>
             
             <div class="form-group">
-                <label for="email">Email *</label>
+                <label for="email" data-text="email_label">Email *</label>
                 <input type="email" id="email" name="email" required>
             </div>
             
             <div class="form-group">
-                <label for="phone">Telefoonnummer *</label>
+                <label for="phone" data-text="phone_label">Telefoonnummer *</label>
                 <input type="text" id="phone" name="phone" required>
             </div>
             
             <div class="checkbox-group">
                 <input type="checkbox" id="needsInvoice" name="needsInvoice" onchange="toggleInvoice()">
-                <label class="checkbox-label" for="needsInvoice" onclick="toggleInvoice()">📄 Ik wil een factuur ontvangen</label>
+                <label class="checkbox-label" for="needsInvoice" onclick="toggleInvoice()" data-text="invoice_label">📄 Ik wil een factuur ontvangen</label>
             </div>
             
             <div class="company-fields" id="companyFields">
-                <h3>📋 Factuurgegevens</h3>
+                <h3 data-text="invoice_details">📋 Factuurgegevens</h3>
                 
                 <div class="form-group">
-                    <label for="companyName">Bedrijfsnaam *</label>
+                    <label for="companyName" data-text="company_name">Bedrijfsnaam *</label>
                     <input type="text" id="companyName" name="companyName">
                 </div>
                 
                 <div class="form-group">
-                    <label for="vatNumber">BTW-nummer *</label>
+                    <label for="vatNumber" data-text="vat_number">BTW-nummer *</label>
                     <input type="text" id="vatNumber" name="vatNumber" placeholder="BE0123456789">
                 </div>
                 
                 <div class="form-group">
-                    <label for="address">Adres *</label>
+                    <label for="address" data-text="address_label">Adres *</label>
                     <input type="text" id="address" name="address">
                 </div>
                 
                 <div class="form-group">
-                    <label for="city">Stad *</label>
+                    <label for="city" data-text="city_label">Stad *</label>
                     <input type="text" id="city" name="city">
                 </div>
                 
                 <div class="form-group">
-                    <label for="postalCode">Postcode *</label>
+                    <label for="postalCode" data-text="postal_code">Postcode *</label>
                     <input type="text" id="postalCode" name="postalCode">
                 </div>
             </div>
             
             <div class="form-group">
-                <label>Aantal kerstbomen</label>
+                <label data-text="quantity_label">Aantal kerstbomen</label>
                 <div class="quantity-group">
                     <button type="button" class="quantity-btn" onclick="changeQuantity(-1)">-</button>
                     <span class="quantity-display" id="quantity">1</span>
@@ -444,50 +490,117 @@
             </div>
             
             <div class="price-display">
-                Prijs per boom: €55<br>
-                <strong>Totaal: €<span id="totalPrice">55</span></strong>
+                <span data-text="price_per_tree">Prijs per boom: €55</span><br>
+                <strong><span data-text="total_label">Totaal:</span> €<span id="totalPrice">55</span></strong>
             </div>
 
             <div class="payment-section">
-                <h3>💳 Betaling via Bankoverschrijving</h3>
+                <h3 data-text="payment_title">💳 Betaling via Bankoverschrijving</h3>
                 <div class="iban-display" onclick="copyIBAN()">
                     <div id="ibanNumber">BE58 3630 6651 6879</div>
-                    <button type="button" class="copy-button" onclick="copyIBAN()">📋 Kopiëren</button>
+                    <button type="button" class="copy-button" onclick="copyIBAN()" data-text="copy_button">📋 Kopiëren</button>
                 </div>
                 <div class="payment-info">
-                    <strong>Instructies:</strong><br>
-                    1. Maak een overschrijving naar bovenstaand IBAN-nummer<br>
-                    2. Bedrag: €<span id="paymentAmount">55</span><br>
-                    3. Vermeld je naam in de omschrijving<br>
-                    4. Vink hieronder aan als je de betaling hebt uitgevoerd
+                    <strong data-text="instructions_title">Instructies:</strong><br>
+                    <span data-text="instruction_1">1. Maak een overschrijving naar bovenstaand IBAN-nummer</span><br>
+                    <span data-text="instruction_2">2. Bedrag: €<span id="paymentAmount">55</span></span><br>
+                    <span data-text="instruction_3">3. Vermeld je naam in de omschrijving</span><br>
+                    <span data-text="instruction_4">4. Vink hieronder aan als je de betaling hebt uitgevoerd</span>
                 </div>
                 <div class="payment-confirmation">
                     <div class="checkbox-group">
                         <input type="checkbox" id="paymentConfirmed" name="paymentConfirmed" onchange="toggleOrderButton()">
-                        <label class="checkbox-label" for="paymentConfirmed">✅ Ik heb de betaling uitgevoerd</label>
+                        <label class="checkbox-label" for="paymentConfirmed" data-text="payment_confirmed">✅ Ik heb de betaling uitgevoerd</label>
                     </div>
                 </div>
             </div>
             
-            <button type="submit" class="order-btn" id="orderBtn" disabled>
+            <button type="submit" class="order-btn" id="orderBtn" disabled data-text="order_button">
                 🎄 Bestelling Voltooien
             </button>
             
-            <div class="loading" id="loading">
+            <div class="loading" id="loading" data-text="loading_text">
                 Bestelling wordt verwerkt... ⏳
             </div>
             
             <div class="success-message" id="success">
-                🎉 Bestelling succesvol geplaatst! Je ontvangt een bevestigingsmail.
+                🎉 <span data-text="success_message">Bestelling succesvol geplaatst! Je ontvangt een bevestigingsmail.</span>
             </div>
             
-            <div class="error-message" id="error">
+            <div class="error-message" id="error" data-text="error_message">
                 Er ging iets mis. Probeer het opnieuw.
             </div>
         </form>
     </div>
 
     <script>
+        // Translations
+        const translations = {
+            nl: {
+                title: "Kerstboom Bestellen",
+                subtitle: "Bestel je kerstboom van RT2 hier",
+                name_label: "Naam *",
+                email_label: "Email *",
+                phone_label: "Telefoonnummer *",
+                invoice_label: "📄 Ik wil een factuur ontvangen",
+                invoice_details: "📋 Factuurgegevens",
+                company_name: "Bedrijfsnaam *",
+                vat_number: "BTW-nummer *",
+                address_label: "Adres *",
+                city_label: "Stad *",
+                postal_code: "Postcode *",
+                quantity_label: "Aantal kerstbomen",
+                price_per_tree: "Prijs per boom: €55",
+                total_label: "Totaal:",
+                payment_title: "💳 Betaling via Bankoverschrijving",
+                copy_button: "📋 Kopiëren",
+                instructions_title: "Instructies:",
+                instruction_1: "1. Maak een overschrijving naar bovenstaand IBAN-nummer",
+                instruction_2: "2. Bedrag: €",
+                instruction_3: "3. Vermeld je naam in de omschrijving",
+                instruction_4: "4. Vink hieronder aan als je de betaling hebt uitgevoerd",
+                payment_confirmed: "✅ Ik heb de betaling uitgevoerd",
+                order_button: "🎄 Bestelling Voltooien",
+                loading_text: "Bestelling wordt verwerkt... ⏳",
+                success_message: "Bestelling succesvol geplaatst! Je ontvangt een bevestigingsmail.",
+                error_message: "Er ging iets mis. Probeer het opnieuw.",
+                copied_text: "✅ Gekopieerd!"
+            },
+            fr: {
+                title: "Commander Sapin de Noël",
+                subtitle: "Commandez votre sapin de Noël RT2 ici",
+                name_label: "Nom *",
+                email_label: "Email *",
+                phone_label: "Numéro de téléphone *",
+                invoice_label: "📄 Je souhaite recevoir une facture",
+                invoice_details: "📋 Données de facturation",
+                company_name: "Nom de l'entreprise *",
+                vat_number: "Numéro de TVA *",
+                address_label: "Adresse *",
+                city_label: "Ville *",
+                postal_code: "Code postal *",
+                quantity_label: "Nombre de sapins de Noël",
+                price_per_tree: "Prix par sapin: €55",
+                total_label: "Total:",
+                payment_title: "💳 Paiement par virement bancaire",
+                copy_button: "📋 Copier",
+                instructions_title: "Instructions:",
+                instruction_1: "1. Effectuez un virement vers le numéro IBAN ci-dessus",
+                instruction_2: "2. Montant: €",
+                instruction_3: "3. Mentionnez votre nom dans la description",
+                instruction_4: "4. Cochez ci-dessous si vous avez effectué le paiement",
+                payment_confirmed: "✅ J'ai effectué le paiement",
+                order_button: "🎄 Finaliser la commande",
+                loading_text: "Commande en cours de traitement... ⏳",
+                success_message: "Commande passée avec succès! Vous recevrez un email de confirmation.",
+                error_message: "Quelque chose s'est mal passé. Veuillez réessayer.",
+                copied_text: "✅ Copié!"
+            }
+        };
+
+        // Current language
+        let currentLanguage = 'nl';
+
         // Variables
         let quantity = 1;
         const pricePerTree = 55;
@@ -495,11 +608,49 @@
         // Google Form URL - REPLACE WITH YOUR ACTUAL FORM URL
         const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScIGSrCx53X3yTJIrydkwQL8AkFHOMRkrwo2c5FtNz2seK9SQ/formResponse';
         
+        // Language switching function
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            
+            // Update active button
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+            
+            // Update all texts
+            document.querySelectorAll('[data-text]').forEach(element => {
+                const key = element.getAttribute('data-text');
+                if (translations[lang][key]) {
+                    if (element.tagName === 'INPUT') {
+                        element.placeholder = translations[lang][key];
+                    } else {
+                        element.textContent = translations[lang][key];
+                    }
+                }
+            });
+
+            // Update special cases
+            updateInstructionText();
+            
+            // Update document language
+            document.documentElement.lang = lang;
+        }
+
+        // Update instruction text with dynamic amount
+        function updateInstructionText() {
+            const amount = (pricePerTree * quantity).toFixed(2);
+            const instruction2 = document.querySelector('[data-text="instruction_2"]');
+            if (instruction2) {
+                instruction2.innerHTML = `${translations[currentLanguage]['instruction_2']}<span id="paymentAmount">${amount}</span>`;
+            }
+        }
+
         // Functions
         function updatePrice() {
             const total = pricePerTree * quantity;
             document.getElementById('totalPrice').textContent = total.toFixed(2);
-            document.getElementById('paymentAmount').textContent = total.toFixed(2);
+            updateInstructionText();
         }
 
         function changeQuantity(delta) {
@@ -548,13 +699,14 @@
                 await navigator.clipboard.writeText(ibanText);
                 
                 // Show feedback
-                const originalText = document.querySelector('.copy-button').textContent;
-                document.querySelector('.copy-button').textContent = '✅ Gekopieerd!';
-                document.querySelector('.copy-button').style.background = '#32CD32';
+                const copyBtn = document.querySelector('.copy-button');
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = translations[currentLanguage]['copied_text'];
+                copyBtn.style.background = '#32CD32';
                 
                 setTimeout(() => {
-                    document.querySelector('.copy-button').textContent = originalText;
-                    document.querySelector('.copy-button').style.background = '#FFD700';
+                    copyBtn.textContent = translations[currentLanguage]['copy_button'];
+                    copyBtn.style.background = '#FFD700';
                 }, 2000);
             } catch (err) {
                 console.error('Failed to copy IBAN:', err);
@@ -565,7 +717,7 @@
                 textArea.select();
                 try {
                     document.execCommand('copy');
-                    document.querySelector('.copy-button').textContent = '✅ Gekopieerd!';
+                    document.querySelector('.copy-button').textContent = translations[currentLanguage]['copied_text'];
                 } catch (fallbackErr) {
                     console.error('Fallback copy failed:', fallbackErr);
                 }
@@ -610,6 +762,7 @@
                 totalPrice: totalPrice,
                 needsInvoice: needsInvoice,
                 paymentConfirmed: paymentConfirmed,
+                language: currentLanguage,
                 companyName: needsInvoice ? document.getElementById('companyName').value : '',
                 vatNumber: needsInvoice ? document.getElementById('vatNumber').value : '',
                 address: needsInvoice ? document.getElementById('address').value : '',
@@ -634,6 +787,7 @@
                 formData.append('entry.157753956', orderData.orderNumber);
                 formData.append('entry.1997491153', orderData.needsInvoice ? 'Yes' : 'No');
                 formData.append('entry.1234567890', orderData.paymentConfirmed ? 'Yes' : 'No');
+                formData.append('entry.987654321', orderData.language.toUpperCase());
                 
                 if (needsInvoice) {
                     formData.append('entry.195252341', orderData.companyName);
@@ -653,15 +807,29 @@
                 setTimeout(() => {
                     document.getElementById('loading').style.display = 'none';
                     
+                    const lang = currentLanguage;
+                    const orderConfirmedText = lang === 'nl' ? 'Bestelling verstuurd!' : 'Commande envoyée!';
+                    const orderNumberText = lang === 'nl' ? 'Bestelnummer:' : 'Numéro de commande:';
+                    const nameText = lang === 'nl' ? 'Naam:' : 'Nom:';
+                    const quantityText = lang === 'nl' ? 'kerstbomen' : 'sapins de Noël';
+                    const totalText = lang === 'nl' ? 'Totaal:' : 'Total:';
+                    const paymentText = lang === 'nl' ? 'Betaling bevestigd:' : 'Paiement confirmé:';
+                    const yesText = lang === 'nl' ? 'Ja' : 'Oui';
+                    const noText = lang === 'nl' ? 'Nee' : 'Non';
+                    const emailText = lang === 'nl' ? 
+                        'Je ontvangt automatisch een bevestigingsmail' : 
+                        'Vous recevrez automatiquement un email de confirmation';
+                    const invoiceText = lang === 'nl' ? ' met factuur PDF' : ' avec facture PDF';
+                    
                     let successMessage = `
-                        <strong>🎉 Bestelling verstuurd!</strong><br>
-                        Bestelnummer: ${orderData.orderNumber}<br>
-                        Naam: ${orderData.name}<br>
+                        <strong>🎉 ${orderConfirmedText}</strong><br>
+                        ${orderNumberText} ${orderData.orderNumber}<br>
+                        ${nameText} ${orderData.name}<br>
                         Email: ${orderData.email}<br>
-                        Aantal: ${orderData.quantity} kerstbomen<br>
-                        Totaal: €${orderData.totalPrice}<br>
-                        Betaling bevestigd: ${orderData.paymentConfirmed ? 'Ja' : 'Nee'}<br><br>
-                        <small>📧 Je ontvangt automatisch een bevestigingsmail${needsInvoice ? ' met factuur PDF' : ''}!</small>
+                        ${lang === 'nl' ? 'Aantal:' : 'Nombre:'} ${orderData.quantity} ${quantityText}<br>
+                        ${totalText} €${orderData.totalPrice}<br>
+                        ${paymentText} ${orderData.paymentConfirmed ? yesText : noText}<br><br>
+                        <small>📧 ${emailText}${needsInvoice ? invoiceText : ''}!</small>
                     `;
                     
                     document.getElementById('success').innerHTML = successMessage;
@@ -684,10 +852,20 @@
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('loading').style.display = 'none';
+                
+                const lang = currentLanguage;
+                const errorTitle = lang === 'nl' ? 'Er ging iets mis' : 'Quelque chose s\'est mal passé';
+                const errorText = lang === 'nl' ? 
+                    'Probeer het opnieuw of neem contact op.' : 
+                    'Veuillez réessayer ou nous contacter.';
+                const orderRefText = lang === 'nl' ? 
+                    'Bestelnummer voor referentie:' : 
+                    'Numéro de commande pour référence:';
+                
                 document.getElementById('error').innerHTML = `
-                    <strong>Er ging iets mis</strong><br>
-                    Probeer het opnieuw of neem contact op.<br>
-                    Bestelnummer voor referentie: ${orderData.orderNumber}
+                    <strong>${errorTitle}</strong><br>
+                    ${errorText}<br>
+                    ${orderRefText} ${orderData.orderNumber}
                 `;
                 document.getElementById('error').style.display = 'block';
                 document.getElementById('orderBtn').disabled = false;
@@ -697,6 +875,9 @@
         // Initialize price and button state on page load
         updatePrice();
         toggleOrderButton();
+        
+        // Initialize language
+        switchLanguage('nl');
     </script>
 </body>
 </html>
