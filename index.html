@@ -808,20 +808,6 @@
                     mode: 'no-cors',
                     body: formData
                 });
-                
-                if (needsInvoice) {
-                    formData.append('entry.195252341', orderData.companyName);
-                    formData.append('entry.26035493', orderData.vatNumber);
-                    formData.append('entry.1560784429', orderData.address);
-                    formData.append('entry.1447391829', orderData.city);
-                    formData.append('entry.841053905', orderData.postalCode);
-                }
-
-                await fetch(GOOGLE_FORM_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: formData
-                });
 
                 // Show success message
                 setTimeout(() => {
