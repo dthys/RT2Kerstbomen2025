@@ -501,6 +501,7 @@
     <script>
         // Translations
         const translations = {
+            // ... (translations blijven ongewijzigd)
             nl: {
                 title: "Kerstboom Bestellen",
                 subtitle: "Bestel je kerstboom van RT2 hier",
@@ -556,7 +557,7 @@
         let quantity = 1;
         const pricePerTree = 55;
         
-        // Your Google Apps Script Web App URL - **VERIFY AND REPLACE IF DIFFERENT**
+        // **!!! VERVANG DIT DOOR DE NIEUWE URL NA DE DEPLOYMENT !!!**
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwgJXv2F-MaVlRC_79qPbhZKfZwIYNAG7pgSjGp13dcIpRsRwTGU6wvGV1MmaJKVJ-mFw/exec';
         
         // --- Functions ---
@@ -602,6 +603,7 @@
         function toggleInvoice() {
             const checkbox = document.getElementById('needsInvoice');
             const companyFields = document.getElementById('companyFields');
+            const requiredFields = ['companyName', 'vatNumber', 'address', 'city', 'postalCode'];
             
             // Toggle visibility
             if (checkbox.checked) {
@@ -611,11 +613,9 @@
             }
             
             // Set required attribute based on checkbox state
-            document.getElementById('companyName').required = checkbox.checked;
-            document.getElementById('vatNumber').required = checkbox.checked;
-            document.getElementById('address').required = checkbox.checked;
-            document.getElementById('city').required = checkbox.checked;
-            document.getElementById('postalCode').required = checkbox.checked;
+            requiredFields.forEach(id => {
+                document.getElementById(id).required = checkbox.checked;
+            });
         }
 
         function createSnowflake() {
@@ -636,7 +636,7 @@
 
         setInterval(createSnowflake, 1500);
 
-        // --- CORS Fix: Submit data as URLSearchParams (Form-encoded data) ---
+        // --- Submit data ---
         document.getElementById('orderForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -652,12 +652,22 @@
                 // IMPORTANT: Send needsInvoice as a string 'true' or 'false'
                 needsInvoice: needsInvoice ? 'true' : 'false', 
                 language: currentLanguage,
-                companyName: needsInvoice ? document.getElementById('companyName').value : '',
-                vatNumber: needsInvoice ? document.getElementById('vatNumber').value : '',
-                address: needsInvoice ? document.getElementById('address').value : '',
-                city: needsInvoice ? document.getElementById('city').value : '',
-                postalCode: needsInvoice ? document.getElementById('postalCode').value : ''
+                // Zorg ervoor dat de factuurvelden meegegeven worden, ook als ze leeg zijn (zoals nu)
+                companyName: document.getElementById('companyName').value,
+                vatNumber: document.getElementById('vatNumber').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                postalCode: document.getElementById('postalCode').value
             };
+
+            // Simple client-side validation for required fields when invoice is needed
+            if (needsInvoice) {
+                if (!orderData.companyName || !orderData.vatNumber || !orderData.address || !orderData.city || !orderData.postalCode) {
+                    alert('Vul alle factuurgegevens in a.u.b.');
+                    return;
+                }
+            }
+
 
             // Show loading state
             document.getElementById('orderBtn').disabled = true;
@@ -673,9 +683,6 @@
                 }
                 
                 // 2. Use fetch with the URL-encoded body
-                // NOTE: We rely on the browser to set the correct Content-Type 
-                // ('application/x-www-form-urlencoded') which the Apps Script `e.parameter`
-                // object is designed to handle, bypassing the strict JSON CORS issue.
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     body: params // Sending URLSearchParams
@@ -702,7 +709,11 @@
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('loading').style.display = 'none';
-                document.getElementById('error').textContent = error.message || translations[currentLanguage].error_message;
+                // Toon de specifieke foutmelding als deze beschikbaar is
+                const errorMessage = error.message.includes('HTTP error') 
+                    ? translations[currentLanguage].error_message + ' (Connectie fout: ' + error.message + ')'
+                    : error.message || translations[currentLanguage].error_message;
+                document.getElementById('error').textContent = errorMessage;
                 document.getElementById('error').style.display = 'block';
                 document.getElementById('orderBtn').disabled = false;
             }
