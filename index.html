@@ -6,6 +6,7 @@
     <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==">
     <title>Kerstboom Bestellen / Commander Sapin de Noël</title>
     <style>
+        /* Your existing CSS remains here, unchanged for functionality */
         * {
             margin: 0;
             padding: 0;
@@ -400,6 +401,10 @@
         <p class="subtitle" data-text="subtitle">Bestel je kerstboom van RT2 hier</p>
         
         <form id="orderForm">
+            <input type="hidden" id="quantityInput" name="quantity" value="1">
+            <input type="hidden" id="totalPriceInput" name="totalPrice" value="55.00">
+            <input type="hidden" id="selectedLanguage" name="language" value="nl">
+            
             <div class="form-group">
                 <label for="name" data-text="name_label">Naam *</label>
                 <input type="text" id="name" name="name" required>
@@ -416,7 +421,7 @@
             </div>
             
             <div class="checkbox-group">
-                <input type="checkbox" id="needsInvoice" name="needsInvoice" onchange="toggleInvoice()">
+                <input type="checkbox" id="needsInvoice" onchange="toggleInvoice()">
                 <label class="checkbox-label" for="needsInvoice" data-text="invoice_label">📄 Ik wil een factuur ontvangen</label>
             </div>
             
@@ -453,14 +458,14 @@
                 <label data-text="quantity_label">Aantal kerstbomen</label>
                 <div class="quantity-group">
                     <button type="button" class="quantity-btn" onclick="changeQuantity(-1)">-</button>
-                    <span class="quantity-display" id="quantity">1</span>
+                    <span class="quantity-display" id="quantityDisplay">1</span>
                     <button type="button" class="quantity-btn" onclick="changeQuantity(1)">+</button>
                 </div>
             </div>
             
             <div class="price-display">
                 <span data-text="price_per_tree">Prijs per boom: €55</span><br>
-                <strong><span data-text="total_label">Totaal:</span> €<span id="totalPrice">55</span></strong>
+                <strong><span data-text="total_label">Totaal:</span> €<span id="totalPrice">55.00</span></strong>
             </div>
 
             <div class="payment-section">
@@ -474,9 +479,6 @@
                     Je wordt doorgestuurd naar Mollie voor een veilige betaling
                 </p>
             </div>
-            
-            <!-- Hidden field to submit the selected language -->
-            <input type="hidden" id="selectedLanguage" name="selectedLanguage" value="nl">
             
             <button type="submit" class="order-btn" id="orderBtn" data-text="order_button">
                 💳 <span>Betalen met Mollie</span>
@@ -554,10 +556,11 @@
         let quantity = 1;
         const pricePerTree = 55;
         
-        // Your Google Apps Script Web App URL - REPLACE WITH YOUR DEPLOYED WEB APP URL
+        // Your Google Apps Script Web App URL - **VERIFY AND REPLACE IF DIFFERENT**
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyi5MRBiUXUH6Jc54U_y017egPpTpC_964oZqdmlEAVEiCGrjcZf-DrT1QSKUbu5wqfvg/exec';
         
-        // Language switching function
+        // --- Functions ---
+        
         function switchLanguage(lang) {
             currentLanguage = lang;
             
@@ -582,15 +585,17 @@
             document.documentElement.lang = lang;
         }
 
-        // Functions
         function updatePrice() {
             const total = pricePerTree * quantity;
             document.getElementById('totalPrice').textContent = total.toFixed(2);
+            // Update hidden inputs for submission
+            document.getElementById('quantityInput').value = quantity;
+            document.getElementById('totalPriceInput').value = total.toFixed(2);
         }
 
         function changeQuantity(delta) {
             quantity = Math.max(1, quantity + delta);
-            document.getElementById('quantity').textContent = quantity;
+            document.getElementById('quantityDisplay').textContent = quantity;
             updatePrice();
         }
 
@@ -598,24 +603,21 @@
             const checkbox = document.getElementById('needsInvoice');
             const companyFields = document.getElementById('companyFields');
             
+            // Toggle visibility
             if (checkbox.checked) {
                 companyFields.classList.add('show');
-                document.getElementById('companyName').required = true;
-                document.getElementById('vatNumber').required = true;
-                document.getElementById('address').required = true;
-                document.getElementById('city').required = true;
-                document.getElementById('postalCode').required = true;
             } else {
                 companyFields.classList.remove('show');
-                document.getElementById('companyName').required = false;
-                document.getElementById('vatNumber').required = false;
-                document.getElementById('address').required = false;
-                document.getElementById('city').required = false;
-                document.getElementById('postalCode').required = false;
             }
+            
+            // Set required attribute based on checkbox state
+            document.getElementById('companyName').required = checkbox.checked;
+            document.getElementById('vatNumber').required = checkbox.checked;
+            document.getElementById('address').required = checkbox.checked;
+            document.getElementById('city').required = checkbox.checked;
+            document.getElementById('postalCode').required = checkbox.checked;
         }
 
-        // Snowflake animation
         function createSnowflake() {
             const snowflake = document.createElement('div');
             snowflake.classList.add('snowflake');
@@ -634,20 +636,21 @@
 
         setInterval(createSnowflake, 1500);
 
-        // Form submission
+        // --- CORS Fix: Submit data as URLSearchParams (Form-encoded data) ---
         document.getElementById('orderForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const needsInvoice = document.getElementById('needsInvoice').checked;
-            const totalPrice = (pricePerTree * quantity).toFixed(2);
             
+            // Collect all data into a standard JavaScript object first
             const orderData = {
                 name: document.getElementById('name').value,
                 email: document.getElementById('email').value,
                 phone: document.getElementById('phone').value,
-                quantity: quantity,
-                totalPrice: totalPrice,
-                needsInvoice: needsInvoice,
+                quantity: document.getElementById('quantityInput').value, // From hidden input
+                totalPrice: document.getElementById('totalPriceInput').value, // From hidden input
+                // IMPORTANT: Send needsInvoice as a string 'true' or 'false'
+                needsInvoice: needsInvoice ? 'true' : 'false', 
                 language: currentLanguage,
                 companyName: needsInvoice ? document.getElementById('companyName').value : '',
                 vatNumber: needsInvoice ? document.getElementById('vatNumber').value : '',
@@ -656,20 +659,26 @@
                 postalCode: needsInvoice ? document.getElementById('postalCode').value : ''
             };
 
-            // Show loading
+            // Show loading state
             document.getElementById('orderBtn').disabled = true;
             document.getElementById('loading').style.display = 'block';
             document.getElementById('success').style.display = 'none';
             document.getElementById('error').style.display = 'none';
 
             try {
-                // Call Google Apps Script to create Mollie payment
+                // 1. Convert the JavaScript object to URL-encoded parameters
+                const params = new URLSearchParams();
+                for (const key in orderData) {
+                    params.append(key, orderData[key]);
+                }
+                
+                // 2. Use fetch with the URL-encoded body
+                // NOTE: We rely on the browser to set the correct Content-Type 
+                // ('application/x-www-form-urlencoded') which the Apps Script `e.parameter`
+                // object is designed to handle, bypassing the strict JSON CORS issue.
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(orderData)
+                    body: params // Sending URLSearchParams
                 });
 
                 if (!response.ok) {
@@ -679,11 +688,10 @@
                 const result = await response.json();
 
                 if (result.success && result.paymentUrl) {
-                    // Show success message
+                    // Show success and redirect
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('success').style.display = 'block';
                     
-                    // Redirect to Mollie payment page after 2 seconds
                     setTimeout(() => {
                         window.location.href = result.paymentUrl;
                     }, 2000);
@@ -694,12 +702,13 @@
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').textContent = error.message || translations[currentLanguage].error_message;
                 document.getElementById('error').style.display = 'block';
                 document.getElementById('orderBtn').disabled = false;
             }
         });
 
-        // Initialize
+        // Initialize on load
         updatePrice();
         switchLanguage('nl');
     </script>
