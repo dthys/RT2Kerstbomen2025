@@ -459,10 +459,12 @@
                 price_per_tree: "Prijs per boom: €55",
                 total_label: "Totaal:",
                 payment_title: "💳 Betaalmethode",
-                mollie_title: "Betaal via Bancontact",
-                mollie_desc: "Direct betalen via Mollie (veilig & snel)",
+                bancontact_title: "Bancontact",
+                bancontact_desc: "Betaal veilig via Bancontact",
+                card_title: "Credit Card / Mastercard",
+                card_desc: "Betaal met je creditcard",
                 order_button: "🎄 Betalen en Bestellen",
-                loading_text: "Betaling wordt verwerkt... ⏳",
+                loading_text: "Betaling wordt voorbereid... ⏳",
                 success_message: "Je wordt doorgestuurd naar de betaalpagina...",
                 error_message: "Er ging iets mis. Probeer het opnieuw."
             },
@@ -483,10 +485,12 @@
                 price_per_tree: "Prix par sapin: €55",
                 total_label: "Total:",
                 payment_title: "💳 Méthode de paiement",
-                mollie_title: "Payer via Bancontact",
-                mollie_desc: "Paiement direct via Mollie (sécurisé & rapide)",
+                bancontact_title: "Bancontact",
+                bancontact_desc: "Payez en toute sécurité via Bancontact",
+                card_title: "Carte de crédit / Mastercard",
+                card_desc: "Payez avec votre carte de crédit",
                 order_button: "🎄 Payer et commander",
-                loading_text: "Paiement en cours... ⏳",
+                loading_text: "Préparation du paiement... ⏳",
                 success_message: "Vous êtes redirigé vers la page de paiement...",
                 error_message: "Quelque chose s'est mal passé. Veuillez réessayer."
             }
@@ -552,6 +556,7 @@
             
             const needsInvoice = document.getElementById('needsInvoice').checked;
             const totalPrice = (pricePerTree * quantity).toFixed(2);
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
             
             const orderData = {
                 action: 'create_payment',
@@ -562,6 +567,7 @@
                 totalPrice: totalPrice,
                 needsInvoice: needsInvoice,
                 language: currentLanguage,
+                paymentMethod: paymentMethod,
                 companyName: needsInvoice ? document.getElementById('companyName').value : '',
                 vatNumber: needsInvoice ? document.getElementById('vatNumber').value : '',
                 address: needsInvoice ? document.getElementById('address').value : '',
@@ -579,31 +585,30 @@
             try {
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'text/plain',
                     },
                     body: JSON.stringify(orderData)
                 });
 
-                // Note: met no-cors krijgen we geen response terug
-                // We gaan ervan uit dat het gelukt is en redirecten naar een status pagina
-                // Of je kan een alternatieve methode gebruiken
+                const result = await response.json();
                 
-                // Voor nu: toon success en wacht op redirect
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('success').style.display = 'block';
-                
-                // Simuleer redirect na 2 seconden (in productie komt dit van de backend)
-                setTimeout(() => {
-                    // TIJDELIJK: voor test doeleinden
-                    alert('In productie word je nu doorgestuurd naar Mollie betaalpagina');
-                    // window.location.href = checkoutUrl; // Dit komt van de backend
-                }, 2000);
+                if (result.success && result.checkoutUrl) {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('success').style.display = 'block';
+                    
+                    // Redirect naar Mollie checkout pagina
+                    setTimeout(() => {
+                        window.location.href = result.checkoutUrl;
+                    }, 1500);
+                } else {
+                    throw new Error(result.error || 'Payment creation failed');
+                }
                 
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').innerHTML = translations[currentLanguage].error_message;
                 document.getElementById('error').style.display = 'block';
                 document.getElementById('orderBtn').disabled = false;
             }
