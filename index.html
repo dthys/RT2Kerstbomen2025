@@ -586,7 +586,8 @@
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'text/plain',
+                        // VERANDER 'text/plain' NAAR 'application/json'
+                        'Content-Type': 'application/json', 
                     },
                     body: JSON.stringify(orderData)
                 });
