@@ -419,26 +419,26 @@
             <input type="hidden" id="selectedLanguage" name="selectedLanguage" value="nl">
             
             <button type="submit" class="order-btn" id="orderBtn" data-text="order_button">
-                🎄 Betalen en Bestellen
+                🎄 Bestellen en Doorgaan naar Betaling
             </button>
             
             <div class="loading" id="loading" data-text="loading_text">
-                Betaling wordt verwerkt... ⏳
+                Bezig met bestelling opslaan... ⏳
             </div>
             
             <div class="success-message" id="success">
-                🎉 <span data-text="success_message">Je wordt doorgestuurd naar de betaalpagina...</span>
+                🎉 <span data-text="success_message">Je wordt doorgestuurd naar de Google Forms bevestigingspagina...</span>
             </div>
             
             <div class="error-message" id="error" data-text="error_message">
-                Er ging iets mis. Probeer het opnieuw.
+                Er ging iets mis met het formulier. Probeer het opnieuw.
             </div>
         </form>
     </div>
 
     <script>
-        // !!! VERVANG DIT MET JE EIGEN GOOGLE APPS SCRIPT WEB APP URL !!!
-        const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyuegnm1G2SIIafn2lkClVvEnCdfXpULhqgcseSRGyzdLXIGC-sBnaqU5Hi0q6PzpyayQ/exec';
+        // 🛑 CRUCIAAL: Gebruik HIER de URL van de formResponse van je Google Form.
+        const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScIGSrCx53X3yTJIrydkwQL8AkFHOMRkrwo2c5FtNz2seK9SQ/formResponse';
         
         // Translations
         const translations = {
@@ -463,10 +463,10 @@
                 bancontact_desc: "Betaal veilig via Bancontact",
                 card_title: "Credit Card / Mastercard",
                 card_desc: "Betaal met je creditcard",
-                order_button: "🎄 Betalen en Bestellen",
-                loading_text: "Betaling wordt voorbereid... ⏳",
-                success_message: "Je wordt doorgestuurd naar de betaalpagina...",
-                error_message: "Er ging iets mis. Probeer het opnieuw."
+                order_button: "🎄 Bestellen en Doorgaan naar Betaling",
+                loading_text: "Bezig met bestelling opslaan... ⏳",
+                success_message: "Je wordt doorgestuurd naar de Google Forms bevestigingspagina...",
+                error_message: "Er ging iets mis met het formulier. Probeer het opnieuw."
             },
             fr: {
                 title: "Commander Sapin de Noël",
@@ -489,10 +489,10 @@
                 bancontact_desc: "Payez en toute sécurité via Bancontact",
                 card_title: "Carte de crédit / Mastercard",
                 card_desc: "Payez avec votre carte de crédit",
-                order_button: "🎄 Payer et commander",
-                loading_text: "Préparation du paiement... ⏳",
-                success_message: "Vous êtes redirigé vers la page de paiement...",
-                error_message: "Quelque chose s'est mal passé. Veuillez réessayer."
+                order_button: "🎄 Commander et Procéder au Paiement",
+                loading_text: "Enregistrement de la commande en cours... ⏳",
+                success_message: "Vous êtes redirigé vers la page de confirmation Google Forms...",
+                error_message: "Un problème est survenu avec le formulaire. Veuillez réessayer."
             }
         };
 
@@ -550,71 +550,60 @@
             }
         }
 
-        // Form submission
-        document.getElementById('orderForm').addEventListener('submit', async function(e) {
+        // 🛑 NIEUWE FORM SUBMISSION: Directe POST naar Google Forms
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            const form = e.target;
             const needsInvoice = document.getElementById('needsInvoice').checked;
             const totalPrice = (pricePerTree * quantity).toFixed(2);
-            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            // Genereer het ordernummer lokaal, net als in Apps Script, maar uniek:
+            const orderNumber = 'KB' + Date.now(); 
             
-            const orderData = {
-                action: 'create_payment',
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                quantity: quantity,
-                totalPrice: totalPrice,
-                needsInvoice: needsInvoice,
-                language: currentLanguage,
-                paymentMethod: paymentMethod,
-                companyName: needsInvoice ? document.getElementById('companyName').value : '',
-                vatNumber: needsInvoice ? document.getElementById('vatNumber').value : '',
-                address: needsInvoice ? document.getElementById('address').value : '',
-                city: needsInvoice ? document.getElementById('city').value : '',
-                postalCode: needsInvoice ? document.getElementById('postalCode').value : '',
-                redirectUrl: window.location.href + '?success=true'
+            // 1. Verwijder alle oude/nieuwe input elementen (voor schoonmaak)
+            form.querySelectorAll('input[name^="entry."]').forEach(input => input.remove());
+            
+            // 2. Definieer de datavelden met de entry-IDs van je Google Form
+            const formData = {
+                'entry.2047649140': document.getElementById('name').value,           
+                'entry.236342541': document.getElementById('email').value,           
+                'entry.1872094456': document.getElementById('phone').value,          
+                'entry.940252222': quantity.toString(), 
+                'entry.204874220': '€' + totalPrice,    
+                'entry.157753956': orderNumber,     // Bestelnummer
+                'entry.1997491153': needsInvoice ? 'Yes' : 'No', 
+                'entry.927105195': currentLanguage.toUpperCase(),
+                // Factuurgegevens (indien nodig)
+                'entry.195252341': needsInvoice ? document.getElementById('companyName').value : '',
+                'entry.26035493': needsInvoice ? document.getElementById('vatNumber').value : '',
+                'entry.1560784429': needsInvoice ? document.getElementById('address').value : '',
+                'entry.1447391829': needsInvoice ? document.getElementById('city').value : '',
+                'entry.841053905': needsInvoice ? document.getElementById('postalCode').value : '',
             };
 
-            // Show loading
+            // 3. Voeg de data als verborgen input elementen toe aan het formulier
+            for (const key in formData) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = formData[key];
+                form.appendChild(input);
+            }
+
+            // 4. Set de form actie naar de Google Forms URL
+            form.action = GOOGLE_FORM_URL;
+            form.method = 'POST';
+
+            // 5. Toon de laadstatus en submit
             document.getElementById('orderBtn').disabled = true;
             document.getElementById('loading').style.display = 'block';
-            document.getElementById('success').style.display = 'none';
-            document.getElementById('error').style.display = 'none';
 
-            try {
-                const response = await fetch(BACKEND_URL, {
-                    method: 'POST',
-                    headers: {
-                        // Cruciale hack voor Apps Script: gebruik 'text/plain' om CORS-preflight te omzeilen
-                        'Content-Type': 'text/plain', 
-                    },
-                    body: JSON.stringify(orderData)
-                });
+            // Verwijder de payment methods radio buttons, want die zijn niet nodig voor de form submit
+            document.querySelectorAll('input[name="paymentMethod"]').forEach(el => el.remove());
 
-                // Zelfs als de browser de respons blokkeert door CORS, kan de 'Failed to fetch' 
-                // fout soms later optreden. We proberen de JSON te parsen als de fetch succesvol leek.
-                const result = await response.json();
-                
-                if (result.success && result.checkoutUrl) {
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('success').style.display = 'block';
-                    
-                    // Redirect naar Mollie checkout pagina
-                    setTimeout(() => {
-                        window.location.href = result.checkoutUrl;
-                    }, 1500);
-                } else {
-                    throw new Error(result.error || 'Payment creation failed');
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('error').innerHTML = translations[currentLanguage].error_message;
-                document.getElementById('error').style.display = 'block';
-                document.getElementById('orderBtn').disabled = false;
-            }
+
+            // Stuur het formulier
+            form.submit();
         });
 
         // Initialize
