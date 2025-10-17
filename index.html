@@ -586,8 +586,8 @@
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
                     headers: {
-                        // VERANDER 'text/plain' NAAR 'application/json'
-                        'Content-Type': 'application/json', 
+                        // Gebruik 'text/plain' om de preflight OPTIONS-check te omzeilen
+                        'Content-Type': 'text/plain', 
                     },
                     body: JSON.stringify(orderData)
                 });
