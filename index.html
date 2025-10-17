@@ -6,7 +6,6 @@
     <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==">
     <title>Kerstboom Bestellen / Commander Sapin de Noël</title>
     <style>
-        /* Your existing CSS remains here, unchanged for functionality */
         * {
             margin: 0;
             padding: 0;
@@ -238,36 +237,92 @@
         }
 
         .payment-section {
-            background: linear-gradient(135deg, #f8f9fa, #ffffff);
-            border: 2px solid #007bff;
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid #FFD700;
             border-radius: 12px;
-            padding: 25px;
+            padding: 20px;
             margin: 25px 0;
+            text-align: left;
         }
 
         .payment-section h3 {
-            color: #007bff;
-            margin-bottom: 20px;
-            font-size: 1.3rem;
+            color: #B8860B;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
             text-align: center;
-        }
-
-        .payment-methods {
             display: flex;
-            gap: 15px;
+            align-items: center;
             justify-content: center;
-            margin-bottom: 20px;
+            gap: 10px;
         }
 
-        .payment-method-icon {
-            width: 60px;
-            height: 40px;
-            object-fit: contain;
-            opacity: 0.8;
+        .iban-display {
+            background: white;
+            border: 2px solid #FFD700;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #B8860B;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .iban-display:hover {
+            background: #fffef0;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(184, 134, 11, 0.2);
+        }
+
+        .copy-button {
+            background: #FFD700;
+            color: #B8860B;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-button:hover {
+            background: #FFC107;
+            transform: scale(1.05);
+        }
+
+        .payment-info {
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.4;
+            margin-top: 15px;
+        }
+
+        .payment-confirmation {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(34, 139, 34, 0.05);
+            border: 2px solid rgba(34, 139, 34, 0.2);
+            border-radius: 8px;
+        }
+
+        .payment-confirmation .checkbox-group {
+            margin-bottom: 0;
+            justify-content: center;
+        }
+
+        .payment-confirmation .checkbox-label {
+            color: #228B22;
+            font-size: 1rem;
         }
         
         .order-btn {
-            background: linear-gradient(45deg, #007bff, #0056b3);
+            background: linear-gradient(45deg, #DC143C, #FF6347);
             color: white;
             border: none;
             padding: 18px 40px;
@@ -277,15 +332,11 @@
             cursor: pointer;
             transition: all 0.3s ease;
             width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
         
         .order-btn:hover:not(:disabled) {
             transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0, 123, 255, 0.4);
+            box-shadow: 0 10px 25px rgba(220, 20, 60, 0.4);
         }
         
         .order-btn:disabled {
@@ -299,23 +350,8 @@
         .loading {
             display: none;
             margin-top: 20px;
-            color: #007bff;
+            color: #228B22;
             font-weight: bold;
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #007bff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
         
         .success-message {
@@ -370,22 +406,17 @@
                 width: 100px;
             }
 
+            .iban-display {
+                font-size: 0.9rem;
+                padding: 12px;
+            }
+
             .language-switcher {
                 position: relative;
                 top: 0;
                 right: 0;
                 margin-bottom: 20px;
             }
-
-            .payment-methods {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
-
-        .mollie-logo {
-            height: 20px;
-            vertical-align: middle;
         }
     </style>
 </head>
@@ -401,10 +432,6 @@
         <p class="subtitle" data-text="subtitle">Bestel je kerstboom van RT2 hier</p>
         
         <form id="orderForm">
-            <input type="hidden" id="quantityInput" name="quantity" value="1">
-            <input type="hidden" id="totalPriceInput" name="totalPrice" value="55.00">
-            <input type="hidden" id="selectedLanguage" name="language" value="nl">
-            
             <div class="form-group">
                 <label for="name" data-text="name_label">Naam *</label>
                 <input type="text" id="name" name="name" required>
@@ -421,8 +448,8 @@
             </div>
             
             <div class="checkbox-group">
-                <input type="checkbox" id="needsInvoice" onchange="toggleInvoice()">
-                <label class="checkbox-label" for="needsInvoice" data-text="invoice_label">📄 Ik wil een factuur ontvangen</label>
+                <input type="checkbox" id="needsInvoice" name="needsInvoice" onchange="toggleInvoice()">
+                <label class="checkbox-label" for="needsInvoice" onclick="toggleInvoice()" data-text="invoice_label">📄 Ik wil een factuur ontvangen</label>
             </div>
             
             <div class="company-fields" id="companyFields">
@@ -458,38 +485,50 @@
                 <label data-text="quantity_label">Aantal kerstbomen</label>
                 <div class="quantity-group">
                     <button type="button" class="quantity-btn" onclick="changeQuantity(-1)">-</button>
-                    <span class="quantity-display" id="quantityDisplay">1</span>
+                    <span class="quantity-display" id="quantity">1</span>
                     <button type="button" class="quantity-btn" onclick="changeQuantity(1)">+</button>
                 </div>
             </div>
             
             <div class="price-display">
                 <span data-text="price_per_tree">Prijs per boom: €55</span><br>
-                <strong><span data-text="total_label">Totaal:</span> €<span id="totalPrice">55.00</span></strong>
+                <strong><span data-text="total_label">Totaal:</span> €<span id="totalPrice">55</span></strong>
             </div>
 
             <div class="payment-section">
-                <h3 data-text="payment_title">💳 Veilige betaling via Mollie</h3>
-                <div class="payment-methods">
-                    <img src="https://www.mollie.com/external/icons/payment-methods/bancontact.svg" alt="Bancontact" class="payment-method-icon">
-                    <img src="https://www.mollie.com/external/icons/payment-methods/mastercard.svg" alt="Mastercard" class="payment-method-icon">
-                    <img src="https://www.mollie.com/external/icons/payment-methods/visa.svg" alt="Visa" class="payment-method-icon">
+                <h3 data-text="payment_title">💳 Betaling via Bankoverschrijving</h3>
+                <div class="iban-display" onclick="copyIBAN()">
+                    <div id="ibanNumber">BE58 3630 6651 6879</div>
+                    <button type="button" class="copy-button" onclick="copyIBAN()" data-text="copy_button">📋 Kopiëren</button>
                 </div>
-                <p style="color: #666; font-size: 0.9rem; margin-top: 10px;" data-text="payment_info">
-                    Je wordt doorgestuurd naar Mollie voor een veilige betaling
-                </p>
+                <div class="payment-info">
+                    <strong data-text="instructions_title">Instructies:</strong><br>
+                    <span data-text="instruction_1">1. Maak een overschrijving naar bovenstaand IBAN-nummer</span><br>
+                    <span data-text="instruction_2">2. Bedrag: €<span id="paymentAmount">55</span></span><br>
+                    <span data-text="instruction_3">3. Vermeld je naam in de omschrijving</span><br>
+                    <span data-text="instruction_4">4. Vink hieronder aan als je de betaling hebt uitgevoerd</span>
+                </div>
+                <div class="payment-confirmation">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="paymentConfirmed" name="paymentConfirmed" onchange="toggleOrderButton()">
+                        <label class="checkbox-label" for="paymentConfirmed" data-text="payment_confirmed">✅ Ik heb de betaling uitgevoerd</label>
+                    </div>
+                </div>
             </div>
             
-            <button type="submit" class="order-btn" id="orderBtn" data-text="order_button">
-                💳 <span>Betalen met Mollie</span>
+            <!-- Hidden field to submit the selected language -->
+            <input type="hidden" id="selectedLanguage" name="selectedLanguage" value="nl">
+            
+            <button type="submit" class="order-btn" id="orderBtn" disabled data-text="order_button">
+                🎄 Bestelling Voltooien
             </button>
             
-            <div class="loading" id="loading">
-                <div class="spinner"></div> <span data-text="loading_text">Betaling wordt voorbereid...</span>
+            <div class="loading" id="loading" data-text="loading_text">
+                Bestelling wordt verwerkt... ⏳
             </div>
             
             <div class="success-message" id="success">
-                🎉 <span data-text="success_message">Je wordt doorgestuurd naar Mollie voor betaling...</span>
+                🎉 <span data-text="success_message">Bestelling succesvol geplaatst! Je ontvangt een bevestigingsmail.</span>
             </div>
             
             <div class="error-message" id="error" data-text="error_message">
@@ -501,7 +540,6 @@
     <script>
         // Translations
         const translations = {
-            // ... (translations blijven ongewijzigd)
             nl: {
                 title: "Kerstboom Bestellen",
                 subtitle: "Bestel je kerstboom van RT2 hier",
@@ -518,12 +556,19 @@
                 quantity_label: "Aantal kerstbomen",
                 price_per_tree: "Prijs per boom: €55",
                 total_label: "Totaal:",
-                payment_title: "💳 Veilige betaling via Mollie",
-                payment_info: "Je wordt doorgestuurd naar Mollie voor een veilige betaling",
-                order_button: "💳 Betalen met Mollie",
-                loading_text: "Betaling wordt voorbereid...",
-                success_message: "Je wordt doorgestuurd naar Mollie voor betaling...",
-                error_message: "Er ging iets mis. Probeer het opnieuw."
+                payment_title: "💳 Betaling via Bankoverschrijving",
+                copy_button: "📋 Kopiëren",
+                instructions_title: "Instructies:",
+                instruction_1: "1. Maak een overschrijving naar bovenstaand IBAN-nummer",
+                instruction_2: "2. Bedrag: €",
+                instruction_3: "3. Vermeld je naam in de omschrijving",
+                instruction_4: "4. Vink hieronder aan als je de betaling hebt uitgevoerd",
+                payment_confirmed: "✅ Ik heb de betaling uitgevoerd",
+                order_button: "🎄 Bestelling Voltooien",
+                loading_text: "Bestelling wordt verwerkt... ⏳",
+                success_message: "Bestelling succesvol geplaatst! Je ontvangt een bevestigingsmail.",
+                error_message: "Er ging iets mis. Probeer het opnieuw.",
+                copied_text: "✅ Gekopieerd!"
             },
             fr: {
                 title: "Commander Sapin de Noël",
@@ -541,12 +586,19 @@
                 quantity_label: "Nombre de sapins de Noël",
                 price_per_tree: "Prix par sapin: €55",
                 total_label: "Total:",
-                payment_title: "💳 Paiement sécurisé via Mollie",
-                payment_info: "Vous serez redirigé vers Mollie pour un paiement sécurisé",
-                order_button: "💳 Payer avec Mollie",
-                loading_text: "Préparation du paiement...",
-                success_message: "Vous allez être redirigé vers Mollie pour le paiement...",
-                error_message: "Quelque chose s'est mal passé. Veuillez réessayer."
+                payment_title: "💳 Paiement par virement bancaire",
+                copy_button: "📋 Copier",
+                instructions_title: "Instructions:",
+                instruction_1: "1. Effectuez un virement vers le numéro IBAN ci-dessus",
+                instruction_2: "2. Montant: €",
+                instruction_3: "3. Mentionnez votre nom dans la description",
+                instruction_4: "4. Cochez ci-dessous si vous avez effectué le paiement",
+                payment_confirmed: "✅ J'ai effectué le paiement",
+                order_button: "🎄 Finaliser la commande",
+                loading_text: "Commande en cours de traitement... ⏳",
+                success_message: "Commande passée avec succès! Vous recevrez un email de confirmation.",
+                error_message: "Quelque chose s'est mal passé. Veuillez réessayer.",
+                copied_text: "✅ Copié!"
             }
         };
 
@@ -557,11 +609,10 @@
         let quantity = 1;
         const pricePerTree = 55;
         
-        // **!!! VERVANG DIT DOOR DE NIEUWE URL NA DE DEPLOYMENT !!!**
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBBIiflEwnaEEnA6nL2DVW6AJgDwWN17damKho6bhCNiKNbLBCbuu6F0wsVWVPI6l_OQ/exec';
+        // Google Form URL - REPLACE WITH YOUR ACTUAL FORM URL
+        const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScIGSrCx53X3yTJIrydkwQL8AkFHOMRkrwo2c5FtNz2seK9SQ/formResponse';
         
-        // --- Functions ---
-        
+        // Language switching function
         function switchLanguage(lang) {
             currentLanguage = lang;
             
@@ -578,46 +629,110 @@
             document.querySelectorAll('[data-text]').forEach(element => {
                 const key = element.getAttribute('data-text');
                 if (translations[lang][key]) {
-                    element.textContent = translations[lang][key];
+                    if (element.tagName === 'INPUT') {
+                        element.placeholder = translations[lang][key];
+                    } else {
+                        element.textContent = translations[lang][key];
+                    }
                 }
             });
+
+            // Update special cases
+            updateInstructionText();
             
             // Update document language
             document.documentElement.lang = lang;
         }
 
+        // Update instruction text with dynamic amount
+        function updateInstructionText() {
+            const amount = (pricePerTree * quantity).toFixed(2);
+            const instruction2 = document.querySelector('[data-text="instruction_2"]');
+            if (instruction2) {
+                instruction2.innerHTML = `${translations[currentLanguage]['instruction_2']}<span id="paymentAmount">${amount}</span>`;
+            }
+        }
+
+        // Functions
         function updatePrice() {
             const total = pricePerTree * quantity;
             document.getElementById('totalPrice').textContent = total.toFixed(2);
-            // Update hidden inputs for submission
-            document.getElementById('quantityInput').value = quantity;
-            document.getElementById('totalPriceInput').value = total.toFixed(2);
+            updateInstructionText();
         }
 
         function changeQuantity(delta) {
             quantity = Math.max(1, quantity + delta);
-            document.getElementById('quantityDisplay').textContent = quantity;
+            document.getElementById('quantity').textContent = quantity;
             updatePrice();
         }
 
         function toggleInvoice() {
             const checkbox = document.getElementById('needsInvoice');
             const companyFields = document.getElementById('companyFields');
-            const requiredFields = ['companyName', 'vatNumber', 'address', 'city', 'postalCode'];
             
-            // Toggle visibility
             if (checkbox.checked) {
                 companyFields.classList.add('show');
+                document.getElementById('companyName').required = true;
+                document.getElementById('vatNumber').required = true;
+                document.getElementById('address').required = true;
+                document.getElementById('city').required = true;
+                document.getElementById('postalCode').required = true;
             } else {
                 companyFields.classList.remove('show');
+                document.getElementById('companyName').required = false;
+                document.getElementById('vatNumber').required = false;
+                document.getElementById('address').required = false;
+                document.getElementById('city').required = false;
+                document.getElementById('postalCode').required = false;
             }
-            
-            // Set required attribute based on checkbox state
-            requiredFields.forEach(id => {
-                document.getElementById(id).required = checkbox.checked;
-            });
         }
 
+        function toggleOrderButton() {
+            const paymentConfirmed = document.getElementById('paymentConfirmed').checked;
+            const orderBtn = document.getElementById('orderBtn');
+            
+            if (paymentConfirmed) {
+                orderBtn.disabled = false;
+                orderBtn.style.background = 'linear-gradient(45deg, #DC143C, #FF6347)';
+            } else {
+                orderBtn.disabled = true;
+                orderBtn.style.background = '#ccc';
+            }
+        }
+
+        async function copyIBAN() {
+            const ibanText = document.getElementById('ibanNumber').textContent;
+            try {
+                await navigator.clipboard.writeText(ibanText);
+                
+                // Show feedback
+                const copyBtn = document.querySelector('.copy-button');
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = translations[currentLanguage]['copied_text'];
+                copyBtn.style.background = '#32CD32';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = translations[currentLanguage]['copy_button'];
+                    copyBtn.style.background = '#FFD700';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy IBAN:', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = ibanText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    document.querySelector('.copy-button').textContent = translations[currentLanguage]['copied_text'];
+                } catch (fallbackErr) {
+                    console.error('Fallback copy failed:', fallbackErr);
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+
+        // Snowflake animation
         function createSnowflake() {
             const snowflake = document.createElement('div');
             snowflake.classList.add('snowflake');
@@ -636,91 +751,138 @@
 
         setInterval(createSnowflake, 1500);
 
-        // --- Submit data ---
+        // Form submission
         document.getElementById('orderForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const needsInvoice = document.getElementById('needsInvoice').checked;
+            const paymentConfirmed = document.getElementById('paymentConfirmed').checked;
+            const orderNumber = 'KB' + Date.now();
+            const totalPrice = (pricePerTree * quantity).toFixed(2);
             
-            // Collect all data into a standard JavaScript object first
             const orderData = {
                 name: document.getElementById('name').value,
                 email: document.getElementById('email').value,
                 phone: document.getElementById('phone').value,
-                quantity: document.getElementById('quantityInput').value, // From hidden input
-                totalPrice: document.getElementById('totalPriceInput').value, // From hidden input
-                // IMPORTANT: Send needsInvoice as a string 'true' or 'false'
-                needsInvoice: needsInvoice ? 'true' : 'false', 
+                quantity: quantity,
+                orderNumber: orderNumber,
+                totalPrice: totalPrice,
+                needsInvoice: needsInvoice,
+                paymentConfirmed: paymentConfirmed,
                 language: currentLanguage,
-                // Zorg ervoor dat de factuurvelden meegegeven worden, ook als ze leeg zijn (zoals nu)
-                companyName: document.getElementById('companyName').value,
-                vatNumber: document.getElementById('vatNumber').value,
-                address: document.getElementById('address').value,
-                city: document.getElementById('city').value,
-                postalCode: document.getElementById('postalCode').value
+                companyName: needsInvoice ? document.getElementById('companyName').value : '',
+                vatNumber: needsInvoice ? document.getElementById('vatNumber').value : '',
+                address: needsInvoice ? document.getElementById('address').value : '',
+                city: needsInvoice ? document.getElementById('city').value : '',
+                postalCode: needsInvoice ? document.getElementById('postalCode').value : ''
             };
 
-            // Simple client-side validation for required fields when invoice is needed
-            if (needsInvoice) {
-                if (!orderData.companyName || !orderData.vatNumber || !orderData.address || !orderData.city || !orderData.postalCode) {
-                    alert('Vul alle factuurgegevens in a.u.b.');
-                    return;
-                }
-            }
-
-
-            // Show loading state
+            // Show loading
             document.getElementById('orderBtn').disabled = true;
             document.getElementById('loading').style.display = 'block';
             document.getElementById('success').style.display = 'none';
             document.getElementById('error').style.display = 'none';
 
             try {
-                // 1. Convert the JavaScript object to URL-encoded parameters
-                const params = new URLSearchParams();
-                for (const key in orderData) {
-                    params.append(key, orderData[key]);
-                }
+                // Submit to Google Forms with correct entry IDs
+                const formData = new FormData();
+                formData.append('entry.2047649140', orderData.name);         // Naam
+                formData.append('entry.236342541', orderData.email);         // Email
+                formData.append('entry.1872094456', orderData.phone);        // Telefoonnummer
+                formData.append('entry.940252222', orderData.quantity.toString()); // Aantal kerstbomen
+                formData.append('entry.204874220', '€' + orderData.totalPrice);    // Totaalprijs
+                formData.append('entry.157753956', orderData.orderNumber);   // Bestelnummer
+                formData.append('entry.1997491153', orderData.needsInvoice ? 'Yes' : 'No'); // Invoice needed
+                formData.append('entry.927105195', currentLanguage.toUpperCase()); // Language
                 
-                // 2. Use fetch with the URL-encoded body
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                if (needsInvoice) {
+                    formData.append('entry.195252341', orderData.companyName);   // Bedrijfsnaam
+                    formData.append('entry.26035493', orderData.vatNumber);     // BTW nummer
+                    formData.append('entry.1560784429', orderData.address);     // adres
+                    formData.append('entry.1447391829', orderData.city);        // stad
+                    formData.append('entry.841053905', orderData.postalCode);   // postcode
+                }
+
+                await fetch(GOOGLE_FORM_URL, {
                     method: 'POST',
-                    body: params // Sending URLSearchParams
+                    mode: 'no-cors',
+                    body: formData
                 });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-
-                if (result.success && result.paymentUrl) {
-                    // Show success and redirect
+                // Show success message
+                setTimeout(() => {
                     document.getElementById('loading').style.display = 'none';
+                    
+                    const lang = currentLanguage;
+                    const orderConfirmedText = lang === 'nl' ? 'Bestelling verstuurd!' : 'Commande envoyée!';
+                    const orderNumberText = lang === 'nl' ? 'Bestelnummer:' : 'Numéro de commande:';
+                    const nameText = lang === 'nl' ? 'Naam:' : 'Nom:';
+                    const quantityText = lang === 'nl' ? 'kerstbomen' : 'sapins de Noël';
+                    const totalText = lang === 'nl' ? 'Totaal:' : 'Total:';
+                    const paymentText = lang === 'nl' ? 'Betaling bevestigd:' : 'Paiement confirmé:';
+                    const yesText = lang === 'nl' ? 'Ja' : 'Oui';
+                    const noText = lang === 'nl' ? 'Nee' : 'Non';
+                    const emailText = lang === 'nl' ? 
+                        'Je ontvangt automatisch een bevestigingsmail' : 
+                        'Vous recevrez automatiquement un email de confirmation';
+                    const invoiceText = lang === 'nl' ? ' met factuur PDF' : ' avec facture PDF';
+                    
+                    let successMessage = `
+                        <strong>🎉 ${orderConfirmedText}</strong><br>
+                        ${orderNumberText} ${orderData.orderNumber}<br>
+                        ${nameText} ${orderData.name}<br>
+                        Email: ${orderData.email}<br>
+                        ${lang === 'nl' ? 'Aantal:' : 'Nombre:'} ${orderData.quantity} ${quantityText}<br>
+                        ${totalText} €${orderData.totalPrice}<br>
+                        ${paymentText} ${orderData.paymentConfirmed ? yesText : noText}<br><br>
+                        <small>📧 ${emailText}${needsInvoice ? invoiceText : ''}!</small>
+                    `;
+                    
+                    document.getElementById('success').innerHTML = successMessage;
                     document.getElementById('success').style.display = 'block';
                     
+                    // Reset form after delay
                     setTimeout(() => {
-                        window.location.href = result.paymentUrl;
-                    }, 2000);
-                } else {
-                    throw new Error(result.error || 'Payment creation failed');
-                }
+                        document.getElementById('orderForm').reset();
+                        quantity = 1;
+                        document.getElementById('quantity').textContent = quantity;
+                        document.getElementById('companyFields').classList.remove('show');
+                        document.getElementById('paymentConfirmed').checked = false;
+                        toggleOrderButton();
+                        updatePrice();
+                        document.getElementById('success').style.display = 'none';
+                        document.getElementById('orderBtn').disabled = true;
+                    }, 8000);
+                }, 1000);
                 
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('loading').style.display = 'none';
-                // Toon de specifieke foutmelding als deze beschikbaar is
-                const errorMessage = error.message.includes('HTTP error') 
-                    ? translations[currentLanguage].error_message + ' (Connectie fout: ' + error.message + ')'
-                    : error.message || translations[currentLanguage].error_message;
-                document.getElementById('error').textContent = errorMessage;
+                
+                const lang = currentLanguage;
+                const errorTitle = lang === 'nl' ? 'Er ging iets mis' : 'Quelque chose s\'est mal passé';
+                const errorText = lang === 'nl' ? 
+                    'Probeer het opnieuw of neem contact op.' : 
+                    'Veuillez réessayer ou nous contacter.';
+                const orderRefText = lang === 'nl' ? 
+                    'Bestelnummer voor referentie:' : 
+                    'Numéro de commande pour référence:';
+                
+                document.getElementById('error').innerHTML = `
+                    <strong>${errorTitle}</strong><br>
+                    ${errorText}<br>
+                    ${orderRefText} ${orderData.orderNumber}
+                `;
                 document.getElementById('error').style.display = 'block';
                 document.getElementById('orderBtn').disabled = false;
             }
         });
 
-        // Initialize on load
+        // Initialize price and button state on page load
         updatePrice();
+        toggleOrderButton();
+        
+        // Initialize language
         switchLanguage('nl');
     </script>
 </body>
