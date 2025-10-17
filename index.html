@@ -586,12 +586,14 @@
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
                     headers: {
-                        // Gebruik 'text/plain' om de preflight OPTIONS-check te omzeilen
+                        // Cruciale hack voor Apps Script: gebruik 'text/plain' om CORS-preflight te omzeilen
                         'Content-Type': 'text/plain', 
                     },
                     body: JSON.stringify(orderData)
                 });
 
+                // Zelfs als de browser de respons blokkeert door CORS, kan de 'Failed to fetch' 
+                // fout soms later optreden. We proberen de JSON te parsen als de fetch succesvol leek.
                 const result = await response.json();
                 
                 if (result.success && result.checkoutUrl) {
