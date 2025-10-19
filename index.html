@@ -491,8 +491,8 @@
             </div>
             
             <div class="price-display">
-                <span data-text="price_per_tree">Prijs per boom: €55</span><br>
-                <strong><span data-text="total_label">Totaal:</span> €<span id="totalPrice">55</span></strong>
+                <span data-text="price_per_tree">Prijs per boom: €65</span><br>
+                <strong><span data-text="total_label">Totaal:</span> €<span id="totalPrice">65</span></strong>
             </div>
 
             <div class="payment-section">
@@ -504,7 +504,7 @@
                 <div class="payment-info">
                     <strong data-text="instructions_title">Instructies:</strong><br>
                     <span data-text="instruction_1">1. Maak een overschrijving naar bovenstaand IBAN-nummer</span><br>
-                    <span data-text="instruction_2">2. Bedrag: €<span id="paymentAmount">55</span></span><br>
+                    <span data-text="instruction_2">2. Bedrag: €<span id="paymentAmount">65</span></span><br>
                     <span data-text="instruction_3">3. Vermeld je naam in de omschrijving</span><br>
                     <span data-text="instruction_4">4. Vink hieronder aan als je de betaling hebt uitgevoerd</span>
                 </div>
@@ -528,7 +528,7 @@
             </div>
             
             <div class="success-message" id="success">
-                🎉 <span data-text="success_message">Bestelling succesvol geplaatst! Je ontvangt een bevestigingsmail.</span>
+                🎉 <span data-text="success_message">Bestelling succesvol geplaatst! Je ontvangt een bevestigingsmail. Kijk zeker u spam folder na!</span>
             </div>
             
             <div class="error-message" id="error" data-text="error_message">
@@ -554,7 +554,7 @@
                 city_label: "Stad *",
                 postal_code: "Postcode *",
                 quantity_label: "Aantal kerstbomen",
-                price_per_tree: "Prijs per boom: €55",
+                price_per_tree: "Prijs per boom: €65",
                 total_label: "Totaal:",
                 payment_title: "💳 Betaling via Bankoverschrijving",
                 copy_button: "📋 Kopiëren",
@@ -566,7 +566,7 @@
                 payment_confirmed: "✅ Ik heb de betaling uitgevoerd",
                 order_button: "🎄 Bestelling Voltooien",
                 loading_text: "Bestelling wordt verwerkt... ⏳",
-                success_message: "Bestelling succesvol geplaatst! Je ontvangt een bevestigingsmail.",
+                success_message: "Bestelling succesvol geplaatst! Je ontvangt een bevestigingsmail. Kijk zeker u spam folder na!",
                 error_message: "Er ging iets mis. Probeer het opnieuw.",
                 copied_text: "✅ Gekopieerd!"
             },
@@ -584,7 +584,7 @@
                 city_label: "Ville *",
                 postal_code: "Code postal *",
                 quantity_label: "Nombre de sapins de Noël",
-                price_per_tree: "Prix par sapin: €55",
+                price_per_tree: "Prix par sapin: €65",
                 total_label: "Total:",
                 payment_title: "💳 Paiement par virement bancaire",
                 copy_button: "📋 Copier",
@@ -596,7 +596,7 @@
                 payment_confirmed: "✅ J'ai effectué le paiement",
                 order_button: "🎄 Finaliser la commande",
                 loading_text: "Commande en cours de traitement... ⏳",
-                success_message: "Commande passée avec succès! Vous recevrez un email de confirmation.",
+                success_message: "Commande passée avec succès! Vous recevrez un email de confirmation. Vérifiez votre spam!",
                 error_message: "Quelque chose s'est mal passé. Veuillez réessayer.",
                 copied_text: "✅ Copié!"
             }
@@ -607,7 +607,7 @@
 
         // Variables
         let quantity = 1;
-        const pricePerTree = 55;
+        const pricePerTree = 65;
         
         // Google Form URL - REPLACE WITH YOUR ACTUAL FORM URL
         const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScIGSrCx53X3yTJIrydkwQL8AkFHOMRkrwo2c5FtNz2seK9SQ/formResponse';
@@ -823,8 +823,8 @@
                     const yesText = lang === 'nl' ? 'Ja' : 'Oui';
                     const noText = lang === 'nl' ? 'Nee' : 'Non';
                     const emailText = lang === 'nl' ? 
-                        'Je ontvangt automatisch een bevestigingsmail' : 
-                        'Vous recevrez automatiquement un email de confirmation';
+                        'Je ontvangt automatisch een bevestigingsmail, kijk zeker u spam na' : 
+                        'Vous recevrez automatiquement un email de confirmation, vérifiez votre spam';
                     const invoiceText = lang === 'nl' ? ' met factuur PDF' : ' avec facture PDF';
                     
                     let successMessage = `
