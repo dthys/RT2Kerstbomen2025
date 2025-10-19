@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bestelling Bevestigd / Commande Confirmée</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f4c3a 0%, #1a5d4a 50%, #0d3d2f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            padding: 50px;
+            text-align: center;
+        }
+
+        .status-icon {
+            font-size: 80px;
+            margin-bottom: 30px;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        h1 {
+            color: #0f4c3a;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .message {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .order-info {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            text-align: left;
+            border-left: 4px solid #228B22;
+        }
+
+        .order-info h3 {
+            color: #0f4c3a;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .order-info p {
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .order-info strong {
+            color: #0f4c3a;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #228B22, #32CD32);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(34, 139, 34, 0.4);
+        }
+
+        .loading {
+            color: #228B22;
+            font-size: 1.2rem;
+            margin: 20px 0;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 4px solid rgba(34, 139, 34, 0.3);
+            border-radius: 50%;
+            border-top-color: #228B22;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .footer-logo {
+            margin-top: 40px;
+            opacity: 0.7;
+        }
+
+        .footer-logo img {
+            max-width: 80px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="statusContainer">
+        <div class="loading-spinner"></div>
+        <div class="loading">Betaling controleren... 🔄<br>Vérification du paiement...</div>
+    </div>
+
+    <script>
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyXyA0Gg9Y-jokeo2niTQukFZvN5NhuW0mmKjB82ikYFeYQGdXJYco91OEjigpH0mckg/exec';
+        
+        const translations = {
+            nl: {
+                success_title: 'Betaling Geslaagd!',
+                success_message: 'Hartelijk dank voor je bestelling! Je betaling is succesvol verwerkt.',
+                email_message: 'Je ontvangt binnen enkele minuten een bevestigingsmail met alle details.',
+                order_details: 'Bestelling Details',
+                order_number: 'Bestelnummer:',
+                name: 'Naam:',
+                email: 'Email:',
+                quantity: 'Aantal kerstbomen:',
+                total: 'Totaal bedrag:',
+                new_order: '🎄 Nieuwe bestelling plaatsen',
+                checking: 'Betaling controleren...',
+                processing: 'Bestelling verwerken...',
+                error_title: 'Betaling Mislukt',
+                error_message: 'Je betaling is niet verwerkt.',
+                error_canceled: 'De betaling is geannuleerd.',
+                error_failed: 'Er ging iets mis met de betaling.',
+                retry: '🔄 Opnieuw Proberen'
+            },
+            fr: {
+                success_title: 'Paiement Réussi!',
+                success_message: 'Merci beaucoup pour votre commande! Votre paiement a été traité avec succès.',
+                email_message: 'Vous recevrez un email de confirmation avec tous les détails dans quelques minutes.',
+                order_details: 'Détails de la commande',
+                order_number: 'Numéro de commande:',
+                name: 'Nom:',
+                email: 'Email:',
+                quantity: 'Nombre de sapins:',
+                total: 'Montant total:',
+                new_order: '🎄 Passer une nouvelle commande',
+                checking: 'Vérification du paiement...',
+                processing: 'Traitement de la commande...',
+                error_title: 'Paiement Échoué',
+                error_message: 'Votre paiement n\'a pas été traité.',
+                error_canceled: 'Le paiement a été annulé.',
+                error_failed: 'Un problème est survenu avec le paiement.',
+                retry: '🔄 Réessayer'
+            }
+        };
+
+        async function checkPaymentAndProcess() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const paymentId = urlParams.get('payment_id');
+            
+            if (!paymentId) {
+                showError('No payment ID found');
+                return;
+            }
+
+            // Get stored order data
+            const orderDataStr = localStorage.getItem('pendingOrder');
+            const lang = localStorage.getItem('orderLanguage') || 'nl';
+            const t = translations[lang];
+
+            if (!orderDataStr) {
+                showError('No order data found', lang);
+                return;
+            }
+
+            const orderData = JSON.parse(orderDataStr);
+
+            try {
+                // Step 1: Check payment status
+                console.log('Checking payment status for:', paymentId);
+                const statusResponse = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=checkPayment&paymentId=${paymentId}`);
+                const paymentStatus = await statusResponse.json();
+                
+                console.log('Payment status:', paymentStatus);
+
+                if (paymentStatus.status === 'paid') {
+                    // Step 2: Show processing message
+                    showProcessing(t);
+                    
+                    // Step 3: Submit to Google Form
+                    console.log('Submitting to Google Form...');
+                    const submitData = {
+                        action: 'submitForm',
+                        paymentId: paymentId,
+                        ...orderData
+                    };
+
+                    const submitResponse = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(submitData)
+                    });
+
+                    const submitResult = await submitResponse.json();
+                    console.log('Form submission result:', submitResult);
+
+                    // Step 4: Show success
+                    showSuccess(orderData, paymentId, lang);
+                    
+                    // Clean up
+                    localStorage.removeItem('pendingOrder');
+                    localStorage.removeItem('orderLanguage');
+                    
+                } else if (paymentStatus.status === 'pending' || paymentStatus.status === 'open') {
+                    // Still pending, check again
+                    setTimeout(checkPaymentAndProcess, 2000);
+                    
+                } else {
+                    // Payment failed
+                    showPaymentFailed(paymentStatus.status, lang);
+                    localStorage.removeItem('pendingOrder');
+                    localStorage.removeItem('orderLanguage');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message, lang);
+            }
+        }
+
+        function showProcessing(t) {
+            document.getElementById('statusContainer').innerHTML = `
+                <div class="loading-spinner"></div>
+                <div class="loading">${t.processing}</div>
+            `;
+        }
+
+        function showSuccess(orderData, paymentId, lang) {
+            const t = translations[lang];
+            
+            document.getElementById('statusContainer').innerHTML = `
+                <div class="status-icon">✅</div>
+                <h1>${t.success_title}</h1>
+                <p class="message">${t.success_message}</p>
+                <p class="message">${t.email_message}</p>
+                
+                <div class="order-info">
+                    <h3>${t.order_details}</h3>
+                    <p><strong>${t.order_number}</strong> ${orderData.orderNumber}</p>
+                    <p><strong>${t.name}</strong> ${orderData.name}</p>
+                    <p><strong>${t.email}</strong> ${orderData.email}</p>
+                    <p><strong>${t.quantity}</strong> ${orderData.quantity}</p>
+                    <p><strong>${t.total}</strong> €${orderData.totalPrice}</p>
+                </div>
+
+                <a href="index.html" class="btn">${t.new_order}</a>
+
+                <div class="footer-logo">
+                    <img src="https://i.ibb.co/Dn8q54B/cropped-logortbround-1.png" alt="RT2 Logo">
+                </div>
+            `;
+        }
+
+        function showPaymentFailed(status, lang) {
+            const t = translations[lang];
+            const reason = status === 'canceled' ? t.error_canceled : t.error_failed;
+            
+            document.getElementById('statusContainer').innerHTML = `
+                <div class="status-icon">❌</div>
+                <h1>${t.error_title}</h1>
+                <p class="message">${t.error_message}</p>
+                <div class="error-box">
+                    <p>${reason}</p>
+                </div>
+                <a href="index.html" class="btn">${t.retry}</a>
+            `;
+        }
+
+        function showError(message, lang = 'nl') {
+            const t = translations[lang];
+            
+            document.getElementById('statusContainer').innerHTML = `
+                <div class="status-icon">⚠️</div>
+                <h1>Error</h1>
+                <div class="error-box">
+                    <p>${message}</p>
+                    <p style="margin-top: 10px; font-size: 0.9rem;">Neem contact op als je hebt betaald.<br>Contactez-nous si vous avez payé.</p>
+                </div>
+                <a href="index.html" class="btn">${lang === 'nl' ? 'Terug' : 'Retour'}</a>
+            `;
+        }
+
+        // Start checking when page loads
+        window.addEventListener('DOMContentLoaded', checkPaymentAndProcess);
+    </script>
+</body>
+</html>
