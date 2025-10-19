@@ -145,16 +145,42 @@
             max-width: 80px;
             height: auto;
         }
+
+        .debug-info {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+            font-family: monospace;
+            font-size: 0.9rem;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container" id="statusContainer">
         <div class="loading-spinner"></div>
         <div class="loading">Betaling controleren... 🔄<br>Vérification du paiement...</div>
+        <div class="debug-info" id="debugInfo"></div>
     </div>
 
     <script>
         const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZU-_b9GPQcXi0umc_fV6OcMKurphS1UePm0v04Vr90kClj3OIpMMAjkhOKlS9noHoxw/exec';
+        
+        // Enable debug mode (set to false in production)
+        const DEBUG = true;
+        
+        function debugLog(message, data) {
+            if (DEBUG) {
+                console.log(message, data);
+                const debugDiv = document.getElementById('debugInfo');
+                if (debugDiv) {
+                    debugDiv.style.display = 'block';
+                    debugDiv.innerHTML += `<div><strong>${message}</strong><br>${JSON.stringify(data, null, 2)}</div><hr>`;
+                }
+            }
+        }
         
         const translations = {
             nl: {
@@ -199,17 +225,15 @@
 
         async function checkPaymentAndProcess() {
             const urlParams = new URLSearchParams(window.location.search);
-            const paymentId = urlParams.get('payment_id');
+            debugLog('URL Parameters:', Object.fromEntries(urlParams));
             
-            if (!paymentId) {
-                showError('No payment ID found');
-                return;
-            }
-
-            // Get stored order data
+            // Get stored order data first
             const orderDataStr = localStorage.getItem('pendingOrder');
             const lang = localStorage.getItem('orderLanguage') || 'nl';
             const t = translations[lang];
+
+            debugLog('Stored order data:', orderDataStr);
+            debugLog('Language:', lang);
 
             if (!orderDataStr) {
                 showError('No order data found', lang);
@@ -217,14 +241,28 @@
             }
 
             const orderData = JSON.parse(orderDataStr);
+            debugLog('Parsed order data:', orderData);
+
+            // Get payment ID from stored data (not URL!)
+            const paymentId = orderData.paymentId;
+            
+            if (!paymentId) {
+                showError('No payment ID found in order data', lang);
+                return;
+            }
+
+            debugLog('Payment ID:', paymentId);
 
             try {
                 // Step 1: Check payment status
                 console.log('Checking payment status for:', paymentId);
-                const statusResponse = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=checkPayment&paymentId=${paymentId}`);
+                const statusUrl = `${GOOGLE_APPS_SCRIPT_URL}?action=checkPayment&paymentId=${paymentId}`;
+                debugLog('Checking payment at:', statusUrl);
+                
+                const statusResponse = await fetch(statusUrl);
                 const paymentStatus = await statusResponse.json();
                 
-                console.log('Payment status:', paymentStatus);
+                debugLog('Payment status response:', paymentStatus);
 
                 if (paymentStatus.status === 'paid') {
                     // Step 2: Show processing message
@@ -238,13 +276,18 @@
                         ...orderData
                     };
 
+                    debugLog('Submitting data:', submitData);
+
                     const submitResponse = await fetch(GOOGLE_APPS_SCRIPT_URL, {
                         method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
                         body: JSON.stringify(submitData)
                     });
 
                     const submitResult = await submitResponse.json();
-                    console.log('Form submission result:', submitResult);
+                    debugLog('Form submission result:', submitResult);
 
                     // Step 4: Show success
                     showSuccess(orderData, paymentId, lang);
@@ -255,10 +298,12 @@
                     
                 } else if (paymentStatus.status === 'pending' || paymentStatus.status === 'open') {
                     // Still pending, check again
+                    debugLog('Payment still pending, checking again in 2 seconds');
                     setTimeout(checkPaymentAndProcess, 2000);
                     
                 } else {
                     // Payment failed
+                    debugLog('Payment failed with status:', paymentStatus.status);
                     showPaymentFailed(paymentStatus.status, lang);
                     localStorage.removeItem('pendingOrder');
                     localStorage.removeItem('orderLanguage');
@@ -266,6 +311,7 @@
 
             } catch (error) {
                 console.error('Error:', error);
+                debugLog('Error occurred:', error.toString());
                 showError(error.message, lang);
             }
         }
@@ -274,6 +320,7 @@
             document.getElementById('statusContainer').innerHTML = `
                 <div class="loading-spinner"></div>
                 <div class="loading">${t.processing}</div>
+                <div class="debug-info" id="debugInfo"></div>
             `;
         }
 
@@ -313,8 +360,10 @@
                 <p class="message">${t.error_message}</p>
                 <div class="error-box">
                     <p>${reason}</p>
+                    <p style="margin-top: 10px; font-size: 0.9rem;">Status: ${status}</p>
                 </div>
                 <a href="index.html" class="btn">${t.retry}</a>
+                <div class="debug-info" id="debugInfo"></div>
             `;
         }
 
@@ -329,6 +378,7 @@
                     <p style="margin-top: 10px; font-size: 0.9rem;">Neem contact op als je hebt betaald.<br>Contactez-nous si vous avez payé.</p>
                 </div>
                 <a href="index.html" class="btn">${lang === 'nl' ? 'Terug' : 'Retour'}</a>
+                <div class="debug-info" id="debugInfo"></div>
             `;
         }
 
