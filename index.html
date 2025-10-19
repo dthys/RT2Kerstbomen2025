@@ -475,9 +475,9 @@
 
     <script>
         // REPLACE THIS WITH YOUR DEPLOYED GOOGLE APPS SCRIPT URL
-        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZU-_b9GPQcXi0umc_fV6OcMKurphS1UePm0v04Vr90kClj3OIpMMAjkhOKlS9noHoxw/exec';
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby147MkImDiWxjLJERvTHsDo3a4lYRmGgT-5k-sHx75YV4oeuvq3LkDyVAyvgckNzKztw/exec';
         
-        // Translation
+        // Translations
         const translations = {
             nl: {
                 title: "Kerstboom Bestellen",
@@ -650,14 +650,29 @@
                 // Create Mollie payment
                 const paymentUrl = `${GOOGLE_APPS_SCRIPT_URL}?action=createPayment&amount=${totalPrice}&description=Kerstboom ${orderNumber}&orderNumber=${orderNumber}`;
                 
+                console.log('Creating payment with URL:', paymentUrl);
+                
                 const response = await fetch(paymentUrl);
                 const paymentData = await response.json();
+
+                console.log('Payment response:', paymentData);
 
                 if (paymentData.error) {
                     throw new Error(paymentData.error);
                 }
 
+                // CRITICAL: Store payment ID BEFORE redirecting
+                if (paymentData.id) {
+                    orderData.paymentId = paymentData.id;
+                    console.log('Storing payment ID:', paymentData.id);
+                    localStorage.setItem('pendingOrder', JSON.stringify(orderData));
+                    console.log('Order data stored:', orderData);
+                } else {
+                    throw new Error('No payment ID received from payment provider');
+                }
+
                 if (paymentData._links && paymentData._links.checkout) {
+                    console.log('Redirecting to checkout:', paymentData._links.checkout.href);
                     // Redirect to Mollie payment page
                     window.location.href = paymentData._links.checkout.href;
                 } else {
