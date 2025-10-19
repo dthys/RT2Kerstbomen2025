@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bestelling Bevestigd / Commande Confirmée</title>
     <style>
-        /* Keep all your existing styles */
         * {
             margin: 0;
             padding: 0;
@@ -107,6 +106,21 @@
             box-shadow: 0 10px 25px rgba(34, 139, 34, 0.4);
         }
 
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(34, 139, 34, 0.3);
+            border-radius: 50%;
+            border-top-color: #228B22;
+            animation: spin 1s ease-in-out infinite;
+            margin: 20px 0;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         .footer-logo {
             margin-top: 40px;
             opacity: 0.7;
@@ -120,28 +134,13 @@
 </head>
 <body>
     <div class="container" id="statusContainer">
-        <div class="status-icon">✅</div>
-        <h1 id="title">Betaling Voltooid!</h1>
-        <p class="message" id="message1">Hartelijk dank voor je bestelling! Je betaling is succesvol verwerkt.</p>
-        <p class="message" id="message2">Je ontvangt binnen enkele minuten een bevestigingsmail met alle details.</p>
-        
-        <div class="order-info" id="orderInfo">
-            <h3 id="detailsTitle">Bestelling Details</h3>
-            <p><strong id="orderLabel">Bestelnummer:</strong> <span id="orderNumber"></span></p>
-            <p><strong id="nameLabel">Naam:</strong> <span id="name"></span></p>
-            <p><strong id="emailLabel">Email:</strong> <span id="email"></span></p>
-            <p><strong id="quantityLabel">Aantal kerstbomen:</strong> <span id="quantity"></span></p>
-            <p><strong id="totalLabel">Totaal bedrag:</strong> €<span id="total"></span></p>
-        </div>
-
-        <a href="index.html" class="btn" id="newOrderBtn">🎄 Nieuwe bestelling plaatsen</a>
-
-        <div class="footer-logo">
-            <img src="https://i.ibb.co/Dn8q54B/cropped-logortbround-1.png" alt="RT2 Logo">
-        </div>
+        <div class="loading-spinner"></div>
+        <p class="message">Bestelling verwerken...<br>Traitement de la commande...</p>
     </div>
 
     <script>
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbygK-tdoJHPrGD8ugy6vyms4PXy2e8T6Job2WaNH0xqfsAuUrmrQGNvqDki_UbvQ6FwZw/exec';
+        
         const translations = {
             nl: {
                 title: 'Betaling Voltooid!',
@@ -169,36 +168,78 @@
             }
         };
 
-        // Load order confirmation from localStorage
-        const confirmationData = localStorage.getItem('orderConfirmation');
-        
-        if (confirmationData) {
-            const order = JSON.parse(confirmationData);
-            const lang = order.language || 'nl';
-            const t = translations[lang];
+        async function processOrder() {
+            try {
+                // Get order data from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const encodedData = urlParams.get('data');
+                
+                if (!encodedData) {
+                    throw new Error('No order data found');
+                }
 
-            // Update text content
-            document.getElementById('title').textContent = t.title;
-            document.getElementById('message1').textContent = t.message1;
-            document.getElementById('message2').textContent = t.message2;
-            document.getElementById('detailsTitle').textContent = t.detailsTitle;
-            document.getElementById('orderLabel').textContent = t.orderLabel;
-            document.getElementById('nameLabel').textContent = t.nameLabel;
-            document.getElementById('emailLabel').textContent = t.emailLabel;
-            document.getElementById('quantityLabel').textContent = t.quantityLabel;
-            document.getElementById('totalLabel').textContent = t.totalLabel;
-            document.getElementById('newOrderBtn').textContent = t.newOrderBtn;
+                // Decode order data
+                const orderData = JSON.parse(atob(encodedData));
+                console.log('Order data:', orderData);
 
-            // Fill in order data
-            document.getElementById('orderNumber').textContent = order.orderNumber;
-            document.getElementById('name').textContent = order.name;
-            document.getElementById('email').textContent = order.email;
-            document.getElementById('quantity').textContent = order.quantity;
-            document.getElementById('total').textContent = order.totalPrice;
+                const lang = orderData.language || 'nl';
+                const t = translations[lang];
 
-            // Clean up localStorage
-            localStorage.removeItem('orderConfirmation');
+                // Get payment ID from Mollie (it's in the URL from Mollie)
+                const paymentId = urlParams.get('id');  // Mollie adds this
+                if (paymentId) {
+                    orderData.paymentId = paymentId;
+                }
+
+                // Submit to Google Form
+                console.log('Submitting to Google Form...');
+                const submitResponse = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'submitForm',
+                        ...orderData
+                    })
+                });
+
+                const result = await submitResponse.json();
+                console.log('Form submitted:', result);
+
+                // Show success message
+                document.getElementById('statusContainer').innerHTML = `
+                    <div class="status-icon">✅</div>
+                    <h1>${t.title}</h1>
+                    <p class="message">${t.message1}</p>
+                    <p class="message">${t.message2}</p>
+                    
+                    <div class="order-info">
+                        <h3>${t.detailsTitle}</h3>
+                        <p><strong>${t.orderLabel}</strong> ${orderData.orderNumber}</p>
+                        <p><strong>${t.nameLabel}</strong> ${orderData.name}</p>
+                        <p><strong>${t.emailLabel}</strong> ${orderData.email}</p>
+                        <p><strong>${t.quantityLabel}</strong> ${orderData.quantity}</p>
+                        <p><strong>${t.totalLabel}</strong> €${orderData.totalPrice}</p>
+                    </div>
+
+                    <a href="index.html" class="btn">${t.newOrderBtn}</a>
+
+                    <div class="footer-logo">
+                        <img src="https://i.ibb.co/Dn8q54B/cropped-logortbround-1.png" alt="RT2 Logo">
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('statusContainer').innerHTML = `
+                    <div class="status-icon">⚠️</div>
+                    <h1>Error</h1>
+                    <p class="message">Er ging iets mis. Neem contact met ons op.<br>Une erreur s'est produite. Contactez-nous.</p>
+                    <a href="index.html" class="btn">Terug / Retour</a>
+                `;
+            }
         }
+
+        // Start processing when page loads
+        window.addEventListener('DOMContentLoaded', processOrder);
     </script>
 </body>
 </html>
