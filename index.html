@@ -643,10 +643,10 @@
             document.getElementById('error').style.display = 'none';
         
             try {
-                // Step 1: Create Mollie payment
-                const paymentUrl = `${GOOGLE_APPS_SCRIPT_URL}?action=createPayment&amount=${totalPrice}&description=Kerstboom ${orderNumber}&orderNumber=${orderNumber}`;
+                // Create payment with ALL order data included
+                const paymentUrl = `${GOOGLE_APPS_SCRIPT_URL}?action=createPayment&amount=${totalPrice}&description=Kerstboom ${orderNumber}&orderNumber=${orderNumber}&name=${encodeURIComponent(orderData.name)}&email=${encodeURIComponent(orderData.email)}&phone=${encodeURIComponent(orderData.phone)}&quantity=${orderData.quantity}&totalPrice=${totalPrice}&needsInvoice=${needsInvoice}&language=${currentLanguage}&companyName=${encodeURIComponent(orderData.companyName)}&vatNumber=${encodeURIComponent(orderData.vatNumber)}&address=${encodeURIComponent(orderData.address)}&city=${encodeURIComponent(orderData.city)}&postalCode=${encodeURIComponent(orderData.postalCode)}`;
                 
-                console.log('Creating payment...');
+                console.log('Creating payment with order data...');
                 const response = await fetch(paymentUrl);
                 const paymentData = await response.json();
         
@@ -654,45 +654,13 @@
                     throw new Error(paymentData.error);
                 }
         
-                if (!paymentData.id) {
-                    throw new Error('No payment ID received');
-                }
-        
-                // Step 2: Submit to Google Form immediately
-                console.log('Submitting to Google Form...');
-                orderData.paymentId = paymentData.id;
-                
-                const submitResponse = await fetch(GOOGLE_APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'text/plain', // Use text/plain to avoid CORS preflight
-                    },
-                    body: JSON.stringify({
-                        action: 'submitForm',
-                        ...orderData
-                    })
-                });
-        
-                const submitResult = await submitResponse.json();
-                console.log('Form submitted:', submitResult);
-        
-                // Step 3: Store minimal data for success page
-                localStorage.setItem('orderConfirmation', JSON.stringify({
-                    orderNumber: orderNumber,
-                    name: orderData.name,
-                    email: orderData.email,
-                    quantity: quantity,
-                    totalPrice: totalPrice,
-                    language: currentLanguage
-                }));
-        
-                // Step 4: Redirect to Mollie
-                if (paymentData._links && paymentData._links.checkout) {
-                    console.log('Redirecting to payment...');
-                    window.location.href = paymentData._links.checkout.href;
-                } else {
+                if (!paymentData._links || !paymentData._links.checkout) {
                     throw new Error('No checkout URL received');
                 }
+        
+                // Redirect to Mollie - they will redirect back to success.html with order data
+                console.log('Redirecting to payment...');
+                window.location.href = paymentData._links.checkout.href;
         
             } catch (error) {
                 console.error('Error:', error);
