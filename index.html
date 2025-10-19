@@ -636,38 +636,55 @@
                 city: needsInvoice ? document.getElementById('city').value : '',
                 postalCode: needsInvoice ? document.getElementById('postalCode').value : ''
             };
-        
+
+            // Store order data for later use on success page
+            localStorage.setItem('pendingOrder', JSON.stringify(orderData));
+            localStorage.setItem('orderLanguage', currentLanguage);
+
             // Show loading
             document.getElementById('orderBtn').disabled = true;
             document.getElementById('loading').style.display = 'block';
             document.getElementById('error').style.display = 'none';
-        
+
             try {
-                // Create payment with ALL order data included
-                const paymentUrl = `${GOOGLE_APPS_SCRIPT_URL}?action=createPayment&amount=${totalPrice}&description=Kerstboom ${orderNumber}&orderNumber=${orderNumber}&name=${encodeURIComponent(orderData.name)}&email=${encodeURIComponent(orderData.email)}&phone=${encodeURIComponent(orderData.phone)}&quantity=${orderData.quantity}&totalPrice=${totalPrice}&needsInvoice=${needsInvoice}&language=${currentLanguage}&companyName=${encodeURIComponent(orderData.companyName)}&vatNumber=${encodeURIComponent(orderData.vatNumber)}&address=${encodeURIComponent(orderData.address)}&city=${encodeURIComponent(orderData.city)}&postalCode=${encodeURIComponent(orderData.postalCode)}`;
+                // Create Mollie payment
+                const paymentUrl = `${GOOGLE_APPS_SCRIPT_URL}?action=createPayment&amount=${totalPrice}&description=Kerstboom ${orderNumber}&orderNumber=${orderNumber}`;
                 
-                console.log('Creating payment with order data...');
+                console.log('Creating payment with URL:', paymentUrl);
+                
                 const response = await fetch(paymentUrl);
                 const paymentData = await response.json();
-        
+
+                console.log('Payment response:', paymentData);
+
                 if (paymentData.error) {
                     throw new Error(paymentData.error);
                 }
-        
-                if (!paymentData._links || !paymentData._links.checkout) {
-                    throw new Error('No checkout URL received');
+
+                // CRITICAL: Store payment ID BEFORE redirecting
+                if (paymentData.id) {
+                    orderData.paymentId = paymentData.id;
+                    console.log('Storing payment ID:', paymentData.id);
+                    localStorage.setItem('pendingOrder', JSON.stringify(orderData));
+                    console.log('Order data stored:', orderData);
+                } else {
+                    throw new Error('No payment ID received from payment provider');
                 }
-        
-                // Redirect to Mollie - they will redirect back to success.html with order data
-                console.log('Redirecting to payment...');
-                window.location.href = paymentData._links.checkout.href;
-        
+
+                if (paymentData._links && paymentData._links.checkout) {
+                    console.log('Redirecting to checkout:', paymentData._links.checkout.href);
+                    // Redirect to Mollie payment page
+                    window.location.href = paymentData._links.checkout.href;
+                } else {
+                    throw new Error('No checkout URL received from payment provider');
+                }
+
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('error').textContent = currentLanguage === 'nl' ? 
-                    'Er ging iets mis. Probeer het opnieuw.' :
-                    'Un problème est survenu. Veuillez réessayer.';
+                    'Er ging iets mis bij het starten van de betaling. Probeer het opnieuw.' :
+                    'Un problème est survenu lors du démarrage du paiement. Veuillez réessayer.';
                 document.getElementById('error').style.display = 'block';
                 document.getElementById('orderBtn').disabled = false;
             }
