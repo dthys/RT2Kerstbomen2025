@@ -636,55 +636,70 @@
                 city: needsInvoice ? document.getElementById('city').value : '',
                 postalCode: needsInvoice ? document.getElementById('postalCode').value : ''
             };
-
-            // Store order data for later use on success page
-            localStorage.setItem('pendingOrder', JSON.stringify(orderData));
-            localStorage.setItem('orderLanguage', currentLanguage);
-
+        
             // Show loading
             document.getElementById('orderBtn').disabled = true;
             document.getElementById('loading').style.display = 'block';
             document.getElementById('error').style.display = 'none';
-
+        
             try {
-                // Create Mollie payment
+                // Step 1: Create Mollie payment
                 const paymentUrl = `${GOOGLE_APPS_SCRIPT_URL}?action=createPayment&amount=${totalPrice}&description=Kerstboom ${orderNumber}&orderNumber=${orderNumber}`;
                 
-                console.log('Creating payment with URL:', paymentUrl);
-                
+                console.log('Creating payment...');
                 const response = await fetch(paymentUrl);
                 const paymentData = await response.json();
-
-                console.log('Payment response:', paymentData);
-
+        
                 if (paymentData.error) {
                     throw new Error(paymentData.error);
                 }
-
-                // CRITICAL: Store payment ID BEFORE redirecting
-                if (paymentData.id) {
-                    orderData.paymentId = paymentData.id;
-                    console.log('Storing payment ID:', paymentData.id);
-                    localStorage.setItem('pendingOrder', JSON.stringify(orderData));
-                    console.log('Order data stored:', orderData);
-                } else {
-                    throw new Error('No payment ID received from payment provider');
+        
+                if (!paymentData.id) {
+                    throw new Error('No payment ID received');
                 }
-
+        
+                // Step 2: Submit to Google Form immediately
+                console.log('Submitting to Google Form...');
+                orderData.paymentId = paymentData.id;
+                
+                const submitResponse = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain', // Use text/plain to avoid CORS preflight
+                    },
+                    body: JSON.stringify({
+                        action: 'submitForm',
+                        ...orderData
+                    })
+                });
+        
+                const submitResult = await submitResponse.json();
+                console.log('Form submitted:', submitResult);
+        
+                // Step 3: Store minimal data for success page
+                localStorage.setItem('orderConfirmation', JSON.stringify({
+                    orderNumber: orderNumber,
+                    name: orderData.name,
+                    email: orderData.email,
+                    quantity: quantity,
+                    totalPrice: totalPrice,
+                    language: currentLanguage
+                }));
+        
+                // Step 4: Redirect to Mollie
                 if (paymentData._links && paymentData._links.checkout) {
-                    console.log('Redirecting to checkout:', paymentData._links.checkout.href);
-                    // Redirect to Mollie payment page
+                    console.log('Redirecting to payment...');
                     window.location.href = paymentData._links.checkout.href;
                 } else {
-                    throw new Error('No checkout URL received from payment provider');
+                    throw new Error('No checkout URL received');
                 }
-
+        
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('error').textContent = currentLanguage === 'nl' ? 
-                    'Er ging iets mis bij het starten van de betaling. Probeer het opnieuw.' :
-                    'Un problème est survenu lors du démarrage du paiement. Veuillez réessayer.';
+                    'Er ging iets mis. Probeer het opnieuw.' :
+                    'Un problème est survenu. Veuillez réessayer.';
                 document.getElementById('error').style.display = 'block';
                 document.getElementById('orderBtn').disabled = false;
             }
