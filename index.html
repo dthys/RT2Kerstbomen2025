@@ -528,9 +528,170 @@
                 <span data-text="error_message">Er ging iets mis. Probeer het opnieuw.</span>
             </div>
         </form>
+        <!-- Payment Status Check (hidden by default) -->
+        <div id="paymentStatusCheck" style="display: none;"></div>
     </div>
 
     <script>
+        // ============= CHECK PAYMENT STATUS ON PAGE LOAD =============
+        window.addEventListener('DOMContentLoaded', async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const paymentId = urlParams.get('payment_id');
+            
+            if (paymentId) {
+                // Hide the form, show payment status check
+                document.getElementById('orderForm').style.display = 'none';
+                document.getElementById('paymentStatusCheck').style.display = 'block';
+                
+                await checkPaymentAndSubmit(paymentId);
+            }
+        });
+    
+        async function checkPaymentAndSubmit(paymentId) {
+            const statusDiv = document.getElementById('paymentStatusCheck');
+            const lang = localStorage.getItem('orderLanguage') || 'nl';
+            
+            const checkingText = lang === 'nl' ? 
+                '🔄 Betaling controleren...' : 
+                '🔄 Vérification du paiement...';
+            
+            statusDiv.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <h2>${checkingText}</h2>
+                </div>
+            `;
+            
+            try {
+                // Get stored order data
+                const orderDataStr = localStorage.getItem('pendingOrder');
+                if (!orderDataStr) {
+                    throw new Error('No order data found');
+                }
+                
+                const orderData = JSON.parse(orderDataStr);
+                
+                // Check payment status
+                const response = await fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=checkPayment&paymentId=${paymentId}`);
+                const result = await response.json();
+                
+                console.log('Payment status:', result);
+                
+                if (result.status === 'paid') {
+                    // Payment successful!
+                    const successText = lang === 'nl' ? {
+                        title: '✅ Betaling Geslaagd!',
+                        message: 'Je betaling is succesvol verwerkt.',
+                        email: 'Je ontvangt binnenkort een bevestigingsmail.',
+                        order: 'Bestelnummer:',
+                        newOrder: '🎄 Nieuwe bestelling plaatsen'
+                    } : {
+                        title: '✅ Paiement Réussi!',
+                        message: 'Votre paiement a été traité avec succès.',
+                        email: 'Vous recevrez bientôt un email de confirmation.',
+                        order: 'Numéro de commande:',
+                        newOrder: '🎄 Passer une nouvelle commande'
+                    };
+                    
+                    statusDiv.innerHTML = `
+                        <div class="success-message" style="display: block;">
+                            <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
+                            <h1>${successText.title}</h1>
+                            <p>${successText.message}</p>
+                            <p>${successText.email}</p>
+                            <p style="margin-top: 20px;"><strong>${successText.order}</strong> ${orderData.orderNumber}</p>
+                            <button onclick="window.location.href='index.html'" class="order-btn" style="margin-top: 30px;">
+                                ${successText.newOrder}
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Submit to Google Form to trigger email
+                    await submitToGoogleForm(orderData, paymentId);
+                    
+                    // Clean up
+                    localStorage.removeItem('pendingOrder');
+                    localStorage.removeItem('orderLanguage');
+                    
+                    // Clear URL parameters after 3 seconds
+                    setTimeout(() => {
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }, 3000);
+                    
+                } else if (result.status === 'pending' || result.status === 'open') {
+                    // Still pending, check again in 2 seconds
+                    setTimeout(() => checkPaymentAndSubmit(paymentId), 2000);
+                    
+                } else {
+                    // Payment failed or cancelled
+                    const errorText = lang === 'nl' ? {
+                        title: '❌ Betaling Mislukt',
+                        message: 'Je betaling is niet verwerkt.',
+                        reason: result.status === 'canceled' ? 'De betaling is geannuleerd.' : 'Er ging iets mis met de betaling.',
+                        retry: '🔄 Opnieuw Proberen'
+                    } : {
+                        title: '❌ Paiement Échoué',
+                        message: 'Votre paiement n\'a pas été traité.',
+                        reason: result.status === 'canceled' ? 'Le paiement a été annulé.' : 'Un problème est survenu avec le paiement.',
+                        retry: '🔄 Réessayer'
+                    };
+                    
+                    statusDiv.innerHTML = `
+                        <div class="error-message" style="display: block;">
+                            <div style="font-size: 60px; margin-bottom: 20px;">❌</div>
+                            <h1>${errorText.title}</h1>
+                            <p>${errorText.message}</p>
+                            <p>${errorText.reason}</p>
+                            <button onclick="window.location.href='index.html'" class="order-btn" style="margin-top: 30px; background: #DC143C;">
+                                ${errorText.retry}
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Clean up
+                    localStorage.removeItem('pendingOrder');
+                    localStorage.removeItem('orderLanguage');
+                }
+                
+            } catch (error) {
+                console.error('Error checking payment:', error);
+                
+                const errorText = lang === 'nl' ? 
+                    'Er ging iets mis bij het controleren van de betaling. Neem contact op als je hebt betaald.' :
+                    'Une erreur s\'est produite lors de la vérification du paiement. Contactez-nous si vous avez payé.';
+                
+                statusDiv.innerHTML = `
+                    <div class="error-message" style="display: block;">
+                        <div style="font-size: 60px; margin-bottom: 20px;">⚠️</div>
+                        <h1>Error</h1>
+                        <p>${errorText}</p>
+                        <button onclick="window.location.href='index.html'" class="order-btn" style="margin-top: 30px;">
+                            ${lang === 'nl' ? 'Terug' : 'Retour'}
+                        </button>
+                    </div>
+                `;
+            }
+        }
+    
+        async function submitToGoogleForm(orderData, paymentId) {
+            try {
+                const submitData = {
+                    ...orderData,
+                    action: 'submitForm',
+                    paymentId: paymentId
+                };
+    
+                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(submitData)
+                });
+                
+                console.log('Form submitted successfully');
+            } catch (error) {
+                console.error('Error submitting form:', error);
+            }
+        }
+
         // ============= CONFIGURATION =============
         // ⭐ PASTE YOUR WEB APP URL HERE
         const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyXyA0Gg9Y-jokeo2niTQukFZvN5NhuW0mmKjB82ikYFeYQGdXJYco91OEjigpH0mckg/exec';
@@ -682,6 +843,10 @@
         
             console.log('Submitting order:', orderData);
         
+            // Store order data and language for when user returns
+            localStorage.setItem('pendingOrder', JSON.stringify(orderData));
+            localStorage.setItem('orderLanguage', currentLanguage);
+        
             // Show loading
             document.getElementById('orderBtn').disabled = true;
             document.getElementById('loading').style.display = 'block';
@@ -689,54 +854,25 @@
             document.getElementById('error').style.display = 'none';
         
             try {
-                // Use a form-based submission to avoid CORS preflight
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = GOOGLE_APPS_SCRIPT_URL;
-                form.style.display = 'none';
-                
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'data';
-                input.value = JSON.stringify(orderData);
-                form.appendChild(input);
-                
-                document.body.appendChild(form);
-                
-                // Use XMLHttpRequest instead of fetch to avoid preflight
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', GOOGLE_APPS_SCRIPT_URL, true);
-                xhr.setRequestHeader('Content-Type', 'text/plain'); // Use text/plain to avoid preflight
-                
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        try {
-                            const result = JSON.parse(xhr.responseText);
-                            console.log('Mollie response:', result);
+                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(orderData)
+                });
         
-                            if (result.success && result.checkoutUrl) {
-                                document.getElementById('loading').style.display = 'none';
-                                document.getElementById('success').style.display = 'block';
-                                
-                                setTimeout(() => {
-                                    window.location.href = result.checkoutUrl;
-                                }, 1000);
-                            } else {
-                                throw new Error(result.error || 'Payment creation failed');
-                            }
-                        } catch (parseError) {
-                            throw new Error('Invalid response from server');
-                        }
-                    } else {
-                        throw new Error('Server error: ' + xhr.status);
-                    }
-                };
-                
-                xhr.onerror = function() {
-                    throw new Error('Network error');
-                };
-                
-                xhr.send(JSON.stringify(orderData));
+                const result = await response.json();
+                console.log('Payment creation response:', result);
+        
+                if (result.success && result.checkoutUrl) {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('success').style.display = 'block';
+                    
+                    // Redirect to Mollie payment
+                    setTimeout(() => {
+                        window.location.href = result.checkoutUrl;
+                    }, 1000);
+                } else {
+                    throw new Error(result.error || 'Payment creation failed');
+                }
                 
             } catch (error) {
                 console.error('Error:', error);
@@ -747,14 +883,10 @@
                 const errorText = lang === 'nl' ? 
                     'Probeer het opnieuw of neem contact op.' : 
                     'Veuillez réessayer ou nous contacter.';
-                const orderRefText = lang === 'nl' ? 
-                    'Bestelnummer voor referentie:' : 
-                    'Numéro de commande pour référence:';
                 
                 document.getElementById('error').innerHTML = `
                     <strong>${errorTitle}</strong><br>
                     ${errorText}<br>
-                    ${orderRefText} ${orderData.orderNumber}<br>
                     <small>${error.message}</small>
                 `;
                 document.getElementById('error').style.display = 'block';
