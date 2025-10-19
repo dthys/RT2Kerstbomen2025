@@ -679,41 +679,64 @@
                 city: needsInvoice ? document.getElementById('city').value : '',
                 postalCode: needsInvoice ? document.getElementById('postalCode').value : ''
             };
-
+        
             console.log('Submitting order:', orderData);
-
+        
             // Show loading
             document.getElementById('orderBtn').disabled = true;
             document.getElementById('loading').style.display = 'block';
             document.getElementById('success').style.display = 'none';
             document.getElementById('error').style.display = 'none';
-
+        
             try {
-                // Create Mollie payment
-                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(orderData),
-                    mode: 'cors'
-                });
-
-                const result = await response.json();
-                console.log('Mollie response:', result);
-
-                if (result.success && result.checkoutUrl) {
-                    // Show success message briefly
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('success').style.display = 'block';
-                    
-                    // Redirect to Mollie checkout after 1 second
-                    setTimeout(() => {
-                        window.location.href = result.checkoutUrl;
-                    }, 1000);
-                } else {
-                    throw new Error(result.error || 'Payment creation failed');
-                }
+                // Use a form-based submission to avoid CORS preflight
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = GOOGLE_APPS_SCRIPT_URL;
+                form.style.display = 'none';
+                
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'data';
+                input.value = JSON.stringify(orderData);
+                form.appendChild(input);
+                
+                document.body.appendChild(form);
+                
+                // Use XMLHttpRequest instead of fetch to avoid preflight
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', GOOGLE_APPS_SCRIPT_URL, true);
+                xhr.setRequestHeader('Content-Type', 'text/plain'); // Use text/plain to avoid preflight
+                
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        try {
+                            const result = JSON.parse(xhr.responseText);
+                            console.log('Mollie response:', result);
+        
+                            if (result.success && result.checkoutUrl) {
+                                document.getElementById('loading').style.display = 'none';
+                                document.getElementById('success').style.display = 'block';
+                                
+                                setTimeout(() => {
+                                    window.location.href = result.checkoutUrl;
+                                }, 1000);
+                            } else {
+                                throw new Error(result.error || 'Payment creation failed');
+                            }
+                        } catch (parseError) {
+                            throw new Error('Invalid response from server');
+                        }
+                    } else {
+                        throw new Error('Server error: ' + xhr.status);
+                    }
+                };
+                
+                xhr.onerror = function() {
+                    throw new Error('Network error');
+                };
+                
+                xhr.send(JSON.stringify(orderData));
                 
             } catch (error) {
                 console.error('Error:', error);
@@ -738,7 +761,6 @@
                 document.getElementById('orderBtn').disabled = false;
             }
         });
-
         // ============= SNOWFLAKE ANIMATION =============
         function createSnowflake() {
             const snowflake = document.createElement('div');
