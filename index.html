@@ -648,7 +648,8 @@
 
             try {
                 // Create Mollie payment
-                const paymentUrl = `${GOOGLE_APPS_SCRIPT_URL}?action=createPayment&amount=${totalPrice}&description=Kerstboom ${orderNumber}&orderNumber=${orderNumber}`;
+                const customerName = encodeURIComponent(document.getElementById('name').value);
+                const paymentUrl = `${GOOGLE_APPS_SCRIPT_URL}?action=createPayment&amount=${totalPrice}&description=Kerstboom ${orderNumber}&orderNumber=${orderNumber}&name=${customerName}`;
                 
                 console.log('Creating payment with URL:', paymentUrl);
                 
