@@ -647,9 +647,21 @@
             document.getElementById('error').style.display = 'none';
 
             try {
-                // Create Mollie payment
+                // Encode all customer data for URL
                 const customerName = encodeURIComponent(document.getElementById('name').value);
-                const paymentUrl = `${GOOGLE_APPS_SCRIPT_URL}?action=createPayment&amount=${totalPrice}&description=Kerstboom ${orderNumber}&orderNumber=${orderNumber}&name=${customerName}`;
+                const email = encodeURIComponent(document.getElementById('email').value);
+                const phone = encodeURIComponent(document.getElementById('phone').value);
+                const language = encodeURIComponent(currentLanguage);
+                
+                // Company data (empty if no invoice needed)
+                const companyName = needsInvoice ? encodeURIComponent(document.getElementById('companyName').value) : '';
+                const vatNumber = needsInvoice ? encodeURIComponent(document.getElementById('vatNumber').value) : '';
+                const address = needsInvoice ? encodeURIComponent(document.getElementById('address').value) : '';
+                const city = needsInvoice ? encodeURIComponent(document.getElementById('city').value) : '';
+                const postalCode = needsInvoice ? encodeURIComponent(document.getElementById('postalCode').value) : '';
+                
+                // Create Mollie payment with all customer data
+                const paymentUrl = `${GOOGLE_APPS_SCRIPT_URL}?action=createPayment&amount=${totalPrice}&description=Kerstboom ${orderNumber}&orderNumber=${orderNumber}&name=${customerName}&email=${email}&phone=${phone}&language=${language}&companyName=${companyName}&vatNumber=${vatNumber}&address=${address}&city=${city}&postalCode=${postalCode}`;
                 
                 console.log('Creating payment with URL:', paymentUrl);
                 
