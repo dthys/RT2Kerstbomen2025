@@ -104,228 +104,69 @@
             margin-bottom: 30px;
             font-size: 1.1rem;
         }
-        
-        .form-group {
-            margin-bottom: 25px;
-            text-align: left;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #0f4c3a;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-        
-        input[type="text"],
-        input[type="email"],
-        input[type="number"] {
-            width: 100%;
-            padding: 15px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: white;
-        }
-        
-        input:focus {
-            outline: none;
-            border-color: #228B22;
-            box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.1);
-            transform: translateY(-2px);
-        }
-        
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-            cursor: pointer;
-        }
-        
-        input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            accent-color: #228B22;
-            cursor: pointer;
-        }
-        
-        .checkbox-label {
-            color: #0f4c3a;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 0;
-        }
-        
-        .company-fields {
-            display: none;
-            background: rgba(34, 139, 34, 0.05);
-            padding: 20px;
-            border-radius: 12px;
-            margin: 20px 0;
-            border: 2px solid rgba(34, 139, 34, 0.1);
-        }
-        
-        .company-fields.show {
-            display: block;
-            animation: slideDown 0.3s ease;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .company-fields h3 {
-            color: #0f4c3a;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-            text-align: center;
-        }
-        
-        .quantity-group {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .quantity-btn {
-            background: #228B22;
+
+        .notice-box {
+            background: linear-gradient(135deg, #DC143C, #FF6347);
             color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2rem;
-            font-weight: bold;
-            transition: all 0.2s ease;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(220, 20, 60, 0.3);
+        }
+
+        .notice-box h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-        
-        .quantity-btn:hover {
-            background: #1e7b1e;
-            transform: scale(1.1);
-        }
-        
-        .quantity-display {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #0f4c3a;
-            min-width: 40px;
-        }
-        
-        .price-display {
-            background: linear-gradient(45deg, #228B22, #32CD32);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 12px;
-            margin: 20px 0;
-            font-size: 1.3rem;
-            font-weight: bold;
-            box-shadow: 0 5px 15px rgba(34, 139, 34, 0.3);
+            gap: 10px;
         }
 
-        .payment-methods {
+        .notice-box p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .contact-box {
             background: rgba(34, 139, 34, 0.05);
             border: 2px solid rgba(34, 139, 34, 0.2);
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 15px;
+            padding: 25px;
             margin: 25px 0;
         }
 
-        .payment-methods h3 {
+        .contact-box h3 {
             color: #0f4c3a;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
         }
 
-        .payment-icons {
+        .contact-item {
             display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 20px;
-            margin-top: 15px;
+            gap: 10px;
+            margin: 15px 0;
+            font-size: 1.1rem;
+            color: #0f4c3a;
         }
 
-        .payment-icon {
-            font-size: 2.5rem;
-        }
-        
-        .order-btn {
-            background: linear-gradient(45deg, #DC143C, #FF6347);
-            color: white;
-            border: none;
-            padding: 18px 40px;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-        
-        .order-btn:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(220, 20, 60, 0.4);
-        }
-        
-        .order-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-            opacity: 0.6;
-        }
-        
-        .loading {
-            display: none;
-            margin-top: 20px;
+        .contact-item a {
             color: #228B22;
-            font-weight: bold;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
-        .loading-spinner {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border: 4px solid rgba(34, 139, 34, 0.3);
-            border-radius: 50%;
-            border-top-color: #228B22;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
+        .contact-item a:hover {
+            color: #1e7b1e;
+            text-decoration: underline;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .success-message {
-            display: none;
-            background: linear-gradient(45deg, #32CD32, #228B22);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 20px;
-            font-weight: bold;
-        }
-        
-        .error-message {
-            display: none;
-            background: #ff4444;
-            color: white;
-            padding: 15px;
-            border-radius: 12px;
-            margin-top: 20px;
+        .icon {
+            font-size: 1.5rem;
         }
         
         .snowflake {
@@ -367,6 +208,18 @@
                 right: 0;
                 margin-bottom: 20px;
             }
+
+            .notice-box h2 {
+                font-size: 1.3rem;
+            }
+
+            .notice-box p {
+                font-size: 1rem;
+            }
+
+            .contact-item {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
@@ -381,157 +234,61 @@
         <h1 data-text="title">Kerstboom Bestellen</h1>
         <p class="subtitle" data-text="subtitle">Bestel je kerstboom van RT2 hier</p>
         
-        <form id="orderForm">
-            <div class="form-group">
-                <label for="name" data-text="name_label">Naam *</label>
-                <input type="text" id="name" name="name" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="email" data-text="email_label">Email *</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="phone" data-text="phone_label">Telefoonnummer *</label>
-                <input type="text" id="phone" name="phone" required>
-            </div>
-            
-            <div class="checkbox-group">
-                <input type="checkbox" id="needsInvoice" name="needsInvoice" onchange="toggleInvoice()">
-                <label class="checkbox-label" for="needsInvoice" onclick="toggleInvoice()" data-text="invoice_label">📄 Ik wil een factuur ontvangen</label>
-            </div>
-            
-            <div class="company-fields" id="companyFields">
-                <h3 data-text="invoice_details">📋 Factuurgegevens</h3>
-                
-                <div class="form-group">
-                    <label for="companyName" data-text="company_name">Bedrijfsnaam *</label>
-                    <input type="text" id="companyName" name="companyName">
-                </div>
-                
-                <div class="form-group">
-                    <label for="vatNumber" data-text="vat_number">BTW-nummer *</label>
-                    <input type="text" id="vatNumber" name="vatNumber" placeholder="BE0123456789">
-                </div>
-                
-                <div class="form-group">
-                    <label for="address" data-text="address_label">Adres *</label>
-                    <input type="text" id="address" name="address">
-                </div>
-                
-                <div class="form-group">
-                    <label for="city" data-text="city_label">Stad *</label>
-                    <input type="text" id="city" name="city">
-                </div>
-                
-                <div class="form-group">
-                    <label for="postalCode" data-text="postal_code">Postcode *</label>
-                    <input type="text" id="postalCode" name="postalCode">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label data-text="quantity_label">Aantal kerstbomen</label>
-                <div class="quantity-group">
-                    <button type="button" class="quantity-btn" onclick="changeQuantity(-1)">-</button>
-                    <span class="quantity-display" id="quantity">1</span>
-                    <button type="button" class="quantity-btn" onclick="changeQuantity(1)">+</button>
-                </div>
-            </div>
-            
-            <div class="price-display">
-                <span data-text="price_per_tree">Prijs per boom: €70</span><br>
-                <strong><span data-text="total_label">Totaal:</span> €<span id="totalPrice">70</span></strong>
-            </div>
+        <div class="notice-box">
+            <h2 data-text="closed_title">⚠️ Bestellingen Gesloten</h2>
+            <p data-text="closed_message">
+                Online bestellingen zijn momenteel niet mogelijk.
+            </p>
+        </div>
 
-            <div class="payment-methods">
-                <h3 data-text="payment_title">💳 Veilig betalen met</h3>
-                <div class="payment-icons">
-                    <span class="payment-icon">💳</span>
-                    <span class="payment-icon">🏦</span>
-                </div>
-                <p style="font-size: 0.9rem; color: #666; margin-top: 10px;" data-text="payment_description">
-                    Betaal veilig met Bancontact of Mastercard
-                </p>
+        <div class="contact-box">
+            <h3 data-text="contact_title">📞 Neem contact met ons op</h3>
+            <p data-text="contact_intro">Wilt u toch een kerstboom bestellen? Neem gerust contact met ons op:</p>
+            
+            <div class="contact-item">
+                <span class="icon">📧</span>
+                <span data-text="email_label">Email:</span>
+                <a href="mailto:info@rt2.be">info@rt2.be</a>
             </div>
             
-            <input type="hidden" id="selectedLanguage" name="selectedLanguage" value="nl">
-            
-            <button type="submit" class="order-btn" id="orderBtn" data-text="order_button">
-                🎄 Doorgaan naar betaling
-            </button>
-            
-            <div class="loading" id="loading">
-                <div class="loading-spinner"></div>
-                <span data-text="loading_text">Betaling voorbereiden...</span>
+            <div class="contact-item">
+                <span class="icon">📱</span>
+                <span data-text="phone_label">Telefoon:</span>
+                <a href="tel:+32123456789" data-text="phone_number">+32 123 456 789</a>
             </div>
-            
-            <div class="error-message" id="error" data-text="error_message">
-                Er ging iets mis. Probeer het opnieuw.
-            </div>
-        </form>
+        </div>
     </div>
 
     <script>
-        // REPLACE THIS WITH YOUR DEPLOYED GOOGLE APPS SCRIPT URL
-        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxfs5wsxA9uspeaJeuWNeweFHQNZ6wpxg0w6WEpCdxCNf64NHM1uGy-fAG95Tg3vfpX3Q/exec';
-        
         // Translation
         const translations = {
             nl: {
                 title: "Kerstboom Bestellen",
                 subtitle: "Bestel je kerstboom van RT2 hier",
-                name_label: "Naam + voornaam *",
-                email_label: "Email *",
-                phone_label: "Telefoonnummer *",
-                invoice_label: "📄 Ik wil een factuur ontvangen",
-                invoice_details: "📋 Factuurgegevens",
-                company_name: "Bedrijfsnaam *",
-                vat_number: "BTW-nummer *",
-                address_label: "Adres *",
-                city_label: "Stad *",
-                postal_code: "Postcode *",
-                quantity_label: "Aantal kerstbomen",
-                price_per_tree: "Prijs per boom: €70",
-                total_label: "Totaal:",
-                payment_title: "💳 Veilig betalen met",
-                payment_description: "Betaal veilig met Bancontact of Mastercard",
-                order_button: "🎄 Doorgaan naar betaling",
-                loading_text: "Betaling voorbereiden...",
-                error_message: "Er ging iets mis. Probeer het opnieuw."
+                closed_title: "⚠️ Bestellingen Gesloten",
+                closed_message: "Online bestellingen zijn momenteel niet mogelijk.",
+                contact_title: "📞 Neem contact met ons op",
+                contact_intro: "Wilt u toch een kerstboom bestellen? Neem gerust contact met ons op:",
+                email_label: "Email:",
+                phone_label: "Telefoon:",
+                phone_number: "+32 123 456 789"
             },
             fr: {
                 title: "Commander Sapin de Noël",
                 subtitle: "Commandez votre sapin de Noël RT2 ici",
-                name_label: "Nom + prénom *",
-                email_label: "Email *",
-                phone_label: "Numéro de téléphone *",
-                invoice_label: "📄 Je souhaite recevoir une facture",
-                invoice_details: "📋 Données de facturation",
-                company_name: "Nom de l'entreprise *",
-                vat_number: "Numéro de TVA *",
-                address_label: "Adresse *",
-                city_label: "Ville *",
-                postal_code: "Code postal *",
-                quantity_label: "Nombre de sapins de Noël",
-                price_per_tree: "Prix par sapin: €70",
-                total_label: "Total:",
-                payment_title: "💳 Payer en toute sécurité avec",
-                payment_description: "Payez en toute sécurité avec Bancontact ou Mastercard",
-                order_button: "🎄 Continuer vers le paiement",
-                loading_text: "Préparation du paiement...",
-                error_message: "Quelque chose s'est mal passé. Veuillez réessayer."
+                closed_title: "⚠️ Commandes Fermées",
+                closed_message: "Les commandes en ligne ne sont actuellement pas possibles.",
+                contact_title: "📞 Contactez-nous",
+                contact_intro: "Vous souhaitez quand même commander un sapin de Noël? N'hésitez pas à nous contacter:",
+                email_label: "Email:",
+                phone_label: "Téléphone:",
+                phone_number: "+32 123 456 789"
             }
         };
 
         // Current language
         let currentLanguage = 'nl';
 
-        // Variables
-        let quantity = 1;
-        const pricePerTree = 70;
-        
         // Language switching function
         function switchLanguage(lang) {
             currentLanguage = lang;
@@ -541,9 +298,6 @@
                 btn.classList.remove('active');
             });
             document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
-            
-            // Update hidden language field
-            document.getElementById('selectedLanguage').value = lang;
             
             // Update all texts
             document.querySelectorAll('[data-text]').forEach(element => {
@@ -559,39 +313,6 @@
             
             // Update document language
             document.documentElement.lang = lang;
-        }
-
-        // Functions
-        function updatePrice() {
-            const total = pricePerTree * quantity;
-            document.getElementById('totalPrice').textContent = total.toFixed(2);
-        }
-
-        function changeQuantity(delta) {
-            quantity = Math.max(1, quantity + delta);
-            document.getElementById('quantity').textContent = quantity;
-            updatePrice();
-        }
-
-        function toggleInvoice() {
-            const checkbox = document.getElementById('needsInvoice');
-            const companyFields = document.getElementById('companyFields');
-            
-            if (checkbox.checked) {
-                companyFields.classList.add('show');
-                document.getElementById('companyName').required = true;
-                document.getElementById('vatNumber').required = true;
-                document.getElementById('address').required = true;
-                document.getElementById('city').required = true;
-                document.getElementById('postalCode').required = true;
-            } else {
-                companyFields.classList.remove('show');
-                document.getElementById('companyName').required = false;
-                document.getElementById('vatNumber').required = false;
-                document.getElementById('address').required = false;
-                document.getElementById('city').required = false;
-                document.getElementById('postalCode').required = false;
-            }
         }
 
         // Snowflake animation
@@ -613,98 +334,7 @@
 
         setInterval(createSnowflake, 1500);
 
-        // Form submission with Mollie payment
-        document.getElementById('orderForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const needsInvoice = document.getElementById('needsInvoice').checked;
-            const orderNumber = 'KB' + Date.now();
-            const totalPrice = (pricePerTree * quantity).toFixed(2);
-            
-            const orderData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                quantity: quantity,
-                orderNumber: orderNumber,
-                totalPrice: totalPrice,
-                needsInvoice: needsInvoice,
-                language: currentLanguage,
-                companyName: needsInvoice ? document.getElementById('companyName').value : '',
-                vatNumber: needsInvoice ? document.getElementById('vatNumber').value : '',
-                address: needsInvoice ? document.getElementById('address').value : '',
-                city: needsInvoice ? document.getElementById('city').value : '',
-                postalCode: needsInvoice ? document.getElementById('postalCode').value : ''
-            };
-
-            // Store order data for later use on success page
-            localStorage.setItem('pendingOrder', JSON.stringify(orderData));
-            localStorage.setItem('orderLanguage', currentLanguage);
-
-            // Show loading
-            document.getElementById('orderBtn').disabled = true;
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('error').style.display = 'none';
-
-            try {
-                // Encode all customer data for URL
-                const customerName = encodeURIComponent(document.getElementById('name').value);
-                const email = encodeURIComponent(document.getElementById('email').value);
-                const phone = encodeURIComponent(document.getElementById('phone').value);
-                const language = encodeURIComponent(currentLanguage);
-                
-                // Company data (empty if no invoice needed)
-                const companyName = needsInvoice ? encodeURIComponent(document.getElementById('companyName').value) : '';
-                const vatNumber = needsInvoice ? encodeURIComponent(document.getElementById('vatNumber').value) : '';
-                const address = needsInvoice ? encodeURIComponent(document.getElementById('address').value) : '';
-                const city = needsInvoice ? encodeURIComponent(document.getElementById('city').value) : '';
-                const postalCode = needsInvoice ? encodeURIComponent(document.getElementById('postalCode').value) : '';
-                
-                // Create Mollie payment with all customer data
-                const paymentUrl = `${GOOGLE_APPS_SCRIPT_URL}?action=createPayment&amount=${totalPrice}&description=Kerstboom ${orderNumber}&orderNumber=${orderNumber}&name=${customerName}&email=${email}&phone=${phone}&language=${language}&companyName=${companyName}&vatNumber=${vatNumber}&address=${address}&city=${city}&postalCode=${postalCode}`;
-                
-                console.log('Creating payment with URL:', paymentUrl);
-                
-                const response = await fetch(paymentUrl);
-                const paymentData = await response.json();
-
-                console.log('Payment response:', paymentData);
-
-                if (paymentData.error) {
-                    throw new Error(paymentData.error);
-                }
-
-                // CRITICAL: Store payment ID BEFORE redirecting
-                if (paymentData.id) {
-                    orderData.paymentId = paymentData.id;
-                    console.log('Storing payment ID:', paymentData.id);
-                    localStorage.setItem('pendingOrder', JSON.stringify(orderData));
-                    console.log('Order data stored:', orderData);
-                } else {
-                    throw new Error('No payment ID received from payment provider');
-                }
-
-                if (paymentData._links && paymentData._links.checkout) {
-                    console.log('Redirecting to checkout:', paymentData._links.checkout.href);
-                    // Redirect to Mollie payment page
-                    window.location.href = paymentData._links.checkout.href;
-                } else {
-                    throw new Error('No checkout URL received from payment provider');
-                }
-
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('error').textContent = currentLanguage === 'nl' ? 
-                    'Er ging iets mis bij het starten van de betaling. Probeer het opnieuw.' :
-                    'Un problème est survenu lors du démarrage du paiement. Veuillez réessayer.';
-                document.getElementById('error').style.display = 'block';
-                document.getElementById('orderBtn').disabled = false;
-            }
-        });
-
         // Initialize
-        updatePrice();
         switchLanguage('nl');
     </script>
 </body>
