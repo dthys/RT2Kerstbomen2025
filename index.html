@@ -30,8 +30,16 @@
   <!-- ── Links: intro ── -->
   <section class="hero">
     <span class="eyebrow" data-t="eyebrow">Kerstverkoop</span>
-    <h1 data-t-html="title">Een échte kerstboom, <em>zonder gedoe.</em></h1>
+    <h1 data-t-html="title">Bestel uw <em>kerstboom.</em></h1>
     <p class="lead" data-t="lead">Bestel online, betaal veilig met Bancontact of kaart en ontvang meteen een bevestiging in je mailbox.</p>
+
+    <div class="impact">
+      <span class="impact-icon" aria-hidden="true">🍲</span>
+      <div>
+        <strong data-t="impactTitle">1 kerstboom = 3 warme maaltijden</strong>
+        <span data-t="impactText">Elke boom dekt de kosten van 3 warme maaltijden via Kamiano.</span>
+      </div>
+    </div>
 
     <div class="art" aria-hidden="true">
       <svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
@@ -235,6 +243,21 @@
     if (e.target.getAttribute('aria-invalid') === 'true' && e.target.checkValidity()) e.target.setAttribute('aria-invalid', 'false');
   });
 
+  // gegevens onthouden voor 'opnieuw proberen'
+  const FIELDS = ['name','email','phone','companyName','vatNumber','address','postalCode','city'];
+  try {
+    const d = JSON.parse(localStorage.getItem('rt2-draft') || 'null');
+    if (d) {
+      FIELDS.forEach(f => { if (d[f]) $(f).value = d[f]; });
+      if (d.qty) { qty = Math.min(C.MAX_QTY, Math.max(1, d.qty)); render(); }
+      if (d.inv) { $('needsInvoice').checked = true; $('needsInvoice').dispatchEvent(new Event('change')); }
+    }
+  } catch (e) {}
+  const saveDraft = () => { try {
+    const d = { qty: qty, inv: $('needsInvoice').checked }; FIELDS.forEach(f => d[f] = $(f).value);
+    localStorage.setItem('rt2-draft', JSON.stringify(d));
+  } catch (e) {} };
+
   const newRef = () => (crypto.randomUUID ? crypto.randomUUID()
     : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2));
   let ref = newRef();
@@ -265,6 +288,7 @@
       const res = await fetch(C.APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
       const out = await res.json();
       if (out.error || !out.checkoutUrl) throw new Error(out.error || 'no checkout');
+      saveDraft();
       window.location.href = out.checkoutUrl;
     } catch (err) {
       console.error(err);

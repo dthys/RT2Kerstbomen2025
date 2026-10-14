@@ -94,8 +94,10 @@
     try {
       const res = await fetch(C.APPS_SCRIPT_URL + '?action=status&ref=' + encodeURIComponent(ref));
       const d = await res.json();
-      if (d.status === 'paid') return show('paid', d);
+      if (d.status === 'paid') { try { localStorage.removeItem('rt2-draft'); } catch (e) {} return show('paid', d); }
       if (['canceled', 'expired', 'failed'].includes(d.status)) return show('failed', d);
+      // 'open' na terugkeer van Mollie = betaling niet afgerond (geannuleerd / venster gesloten)
+      if (d.status === 'open' && tries >= 2) return show('failed', d);
       if (d.status === 'unknown' && tries >= 3) return show('unknown');
     } catch (e) { console.warn(e); }
     if (tries < 12) setTimeout(poll, 2500);   // ± 30 seconden

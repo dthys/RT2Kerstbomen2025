@@ -80,6 +80,15 @@ h1 em { font-style: italic; color: var(--pine); }
 }
 .steps strong { display: block; color: var(--ink); font-weight: 600; }
 
+.impact {
+  display: flex; gap: 14px; align-items: center; margin-top: 24px; max-width: 32rem;
+  padding: 14px 18px; border-radius: 14px; background: #fff; border: 1px solid var(--line);
+  border-left: 4px solid var(--berry);
+}
+.impact-icon { font-size: 1.7rem; line-height: 1; }
+.impact strong { display: block; color: var(--forest); font-weight: 700; }
+.impact span { color: var(--muted); font-size: .95rem; }
+
 /* ── card / form ── */
 .card {
   background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
