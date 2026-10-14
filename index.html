@@ -1,341 +1,282 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==">
-    <title>Kerstboom Bestellen / Commander Sapin de Noël</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f4c3a 0%, #1a5d4a 50%, #0d3d2f 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
-            width: 100%;
-            padding: 40px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(34, 139, 34, 0.05), transparent);
-            transform: rotate(45deg);
-            pointer-events: none;
-        }
-
-        .language-switcher {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 25px;
-            padding: 5px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .lang-btn {
-            background: transparent;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            color: #666;
-        }
-
-        .lang-btn.active {
-            background: #228B22;
-            color: white;
-            transform: scale(1.05);
-        }
-
-        .lang-btn:hover:not(.active) {
-            background: rgba(34, 139, 34, 0.1);
-            color: #228B22;
-        }
-        
-        .logo {
-            width: 120px;
-            height: auto;
-            margin-bottom: 20px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
-        }
-        
-        h1 {
-            color: #0f4c3a;
-            margin-bottom: 10px;
-            font-size: 2.2rem;
-            font-weight: 700;
-        }
-        
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-        }
-
-        .notice-box {
-            background: linear-gradient(135deg, #DC143C, #FF6347);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin: 30px 0;
-            box-shadow: 0 10px 30px rgba(220, 20, 60, 0.3);
-        }
-
-        .notice-box h2 {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .notice-box p {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 10px;
-        }
-
-        .contact-box {
-            background: rgba(34, 139, 34, 0.05);
-            border: 2px solid rgba(34, 139, 34, 0.2);
-            border-radius: 15px;
-            padding: 25px;
-            margin: 25px 0;
-        }
-
-        .contact-box h3 {
-            color: #0f4c3a;
-            font-size: 1.3rem;
-            margin-bottom: 20px;
-        }
-
-        .contact-item {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin: 15px 0;
-            font-size: 1.1rem;
-            color: #0f4c3a;
-        }
-
-        .contact-item a {
-            color: #228B22;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .contact-item a:hover {
-            color: #1e7b1e;
-            text-decoration: underline;
-        }
-
-        .icon {
-            font-size: 1.5rem;
-        }
-        
-        .snowflake {
-            position: fixed;
-            color: rgba(255, 255, 255, 0.6);
-            user-select: none;
-            pointer-events: none;
-            font-size: 1rem;
-            z-index: -1;
-            animation: fall linear infinite;
-        }
-        
-        @keyframes fall {
-            from {
-                transform: translateY(-10px);
-            }
-            to {
-                transform: translateY(100vh);
-            }
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                margin: 10px;
-                padding: 30px 25px;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            .logo {
-                width: 100px;
-            }
-
-            .language-switcher {
-                position: relative;
-                top: 0;
-                right: 0;
-                margin-bottom: 20px;
-            }
-
-            .notice-box h2 {
-                font-size: 1.3rem;
-            }
-
-            .notice-box p {
-                font-size: 1rem;
-            }
-
-            .contact-item {
-                font-size: 1rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RT2 Kerstbomen – Bestel je kerstboom</title>
+  <meta name="description" content="Bestel online je kerstboom bij RT2 en betaal veilig via Mollie.">
+  <meta name="theme-color" content="#14382b">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3 6 16h5l-6 8h22l-6-8h5z' fill='%2314382b'/%3E%3Crect x='14' y='24' width='4' height='5' fill='%23b3322a'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="language-switcher">
-            <button class="lang-btn active" onclick="switchLanguage('nl')" data-lang="nl">NL</button>
-            <button class="lang-btn" onclick="switchLanguage('fr')" data-lang="fr">FR</button>
-        </div>
 
-        <img src="https://i.ibb.co/4RYgfdSd/cropped-logortbround.png" alt="RT2 Logo" class="logo">
-        <h1 data-text="title">Kerstboom Bestellen</h1>
-        <p class="subtitle" data-text="subtitle">Bestel je kerstboom van RT2 hier</p>
-        
-        <div class="notice-box">
-            <h2 data-text="closed_title">⚠️ Bestellingen Gesloten</h2>
-            <p data-text="closed_message">
-                Online bestellingen zijn momenteel niet mogelijk.
-            </p>
-        </div>
+<header class="topbar">
+  <a class="brand" href="./">
+    <img id="logo" alt="RT2" width="44" height="44">
+    <span>RT2</span>
+  </a>
+  <div class="lang" role="group" aria-label="Taal / Langue">
+    <button type="button" data-lang="nl" aria-pressed="true">NL</button>
+    <button type="button" data-lang="fr" aria-pressed="false">FR</button>
+  </div>
+</header>
 
-        <div class="contact-box">
-            <h3 data-text="contact_title">📞 Neem contact met ons op</h3>
-            <p data-text="contact_intro">Wilt u toch een kerstboom bestellen? Neem gerust contact met ons op:</p>
-            
-            <div class="contact-item">
-                <span class="icon">📧</span>
-                <span data-text="email_label">Email:</span>
-                <a href="mailto:d_thys@hotmail.com">d_thys@hotmail.com</a>
-            </div>
-            
-            <div class="contact-item">
-                <span class="icon">📱</span>
-                <span data-text="phone_label">Telefoon:</span>
-                <a href="tel:+32474048989" data-text="phone_number">++32474048989</a>
-            </div>
-        </div>
+<main class="wrap">
+  <!-- ── Links: intro ── -->
+  <section class="hero">
+    <span class="eyebrow" data-t="eyebrow">Kerstverkoop</span>
+    <h1 data-t-html="title">Een échte kerstboom, <em>zonder gedoe.</em></h1>
+    <p class="lead" data-t="lead">Bestel online, betaal veilig met Bancontact of kaart en ontvang meteen een bevestiging in je mailbox.</p>
+
+    <div class="art" aria-hidden="true">
+      <svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#0f2e23"/><stop offset="1" stop-color="#1d4a39"/>
+          </linearGradient>
+        </defs>
+        <rect width="600" height="260" fill="url(#sky)"/>
+        <circle cx="488" cy="62" r="26" fill="#f6f1e7" opacity=".92"/>
+        <circle cx="500" cy="56" r="24" fill="#12332a"/>
+        <g fill="#f6f1e7">
+          <circle cx="60" cy="40" r="1.6" opacity=".7"/><circle cx="140" cy="80" r="1.2" opacity=".5"/>
+          <circle cx="210" cy="30" r="1.8" opacity=".6"/><circle cx="300" cy="70" r="1.3" opacity=".6"/>
+          <circle cx="360" cy="24" r="1.5" opacity=".5"/><circle cx="420" cy="110" r="1.2" opacity=".5"/>
+          <circle cx="560" cy="120" r="1.6" opacity=".6"/><circle cx="100" cy="130" r="1.3" opacity=".4"/>
+          <circle cx="250" cy="120" r="1.1" opacity=".5"/><circle cx="540" cy="30" r="1.2" opacity=".5"/>
+        </g>
+        <!-- achterste rij -->
+        <g fill="#2a5c47" opacity=".7">
+          <path d="M40 210 70 130 100 210Z"/><path d="M120 210 160 110 200 210Z"/>
+          <path d="M330 210 365 125 400 210Z"/><path d="M450 210 495 105 540 210Z"/>
+          <path d="M540 210 575 140 610 210Z"/>
+        </g>
+        <!-- middelste rij -->
+        <g fill="#2f6b4f">
+          <path d="M0 230 40 140 80 230Z"/><path d="M190 230 235 120 280 230Z"/>
+          <path d="M400 230 440 140 480 230Z"/>
+        </g>
+        <!-- hoofdboom -->
+        <g transform="translate(300 0)">
+          <path d="M0 52 -38 112h18L-56 162h22L-76 214h152L34 162h22L20 112h18Z" fill="#3f8a63"/>
+          <path d="M0 52 0 214h76L34 162h22L20 112h18Z" fill="#357853"/>
+          <rect x="-9" y="214" width="18" height="18" fill="#6b4a2f"/>
+          <path d="M0 34l4.7 9.5 10.5 1.5-7.6 7.4 1.8 10.4L0 57.9l-9.4 4.9 1.8-10.4-7.6-7.4 10.5-1.5Z" fill="#c9a24a"/>
+          <circle cx="-14" cy="104" r="5" fill="#b3322a"/><circle cx="18" cy="128" r="5" fill="#c9a24a"/>
+          <circle cx="-26" cy="152" r="5" fill="#c9a24a"/><circle cx="28" cy="176" r="5" fill="#b3322a"/>
+          <circle cx="-40" cy="200" r="5" fill="#b3322a"/><circle cx="6" cy="160" r="4" fill="#f6f1e7"/>
+          <circle cx="50" cy="204" r="4" fill="#f6f1e7"/>
+        </g>
+        <path d="M0 226c120-14 220-12 300-6s200 10 300-4V260H0Z" fill="#f6f1e7"/>
+      </svg>
     </div>
 
-    <script>
-        // Translation
-        const translations = {
-            nl: {
-                title: "Kerstboom Bestellen",
-                subtitle: "Bestel je kerstboom van RT2 hier",
-                closed_title: "⚠️ Bestellingen Gesloten",
-                closed_message: "Online bestellingen zijn momenteel niet mogelijk.",
-                contact_title: "📞 Neem contact met ons op",
-                contact_intro: "Wilt u toch een kerstboom bestellen? Neem gerust contact met ons op:",
-                email_label: "Email:",
-                phone_label: "Telefoon:",
-                phone_number: "+32474048989"
-            },
-            fr: {
-                title: "Commander Sapin de Noël",
-                subtitle: "Commandez votre sapin de Noël RT2 ici",
-                closed_title: "⚠️ Commandes Fermées",
-                closed_message: "Les commandes en ligne ne sont actuellement pas possibles.",
-                contact_title: "📞 Contactez-nous",
-                contact_intro: "Vous souhaitez quand même commander un sapin de Noël? N'hésitez pas à nous contacter:",
-                email_label: "Email:",
-                phone_label: "Téléphone:",
-                phone_number: "+32474048989"
-            }
-        };
+    <ol class="steps">
+      <li><b>1</b><strong data-t="s1">Bestel</strong><span data-t="s1d">Kies hoeveel bomen</span></li>
+      <li><b>2</b><strong data-t="s2">Betaal</strong><span data-t="s2d">Veilig via Mollie</span></li>
+      <li><b>3</b><strong data-t="s3">Klaar</strong><span data-t="s3d">Bevestiging per mail</span></li>
+    </ol>
+  </section>
 
-        // Current language
-        let currentLanguage = 'nl';
+  <!-- ── Rechts: formulier ── -->
+  <section>
+    <form class="card" id="orderForm" novalidate hidden>
+      <h2 data-t="formTitle">Je bestelling</h2>
+      <p class="sub" data-t="formSub">Velden met * zijn verplicht.</p>
 
-        // Language switching function
-        function switchLanguage(lang) {
-            currentLanguage = lang;
-            
-            // Update active button
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
-            
-            // Update all texts
-            document.querySelectorAll('[data-text]').forEach(element => {
-                const key = element.getAttribute('data-text');
-                if (translations[lang][key]) {
-                    if (element.tagName === 'INPUT') {
-                        element.placeholder = translations[lang][key];
-                    } else {
-                        element.textContent = translations[lang][key];
-                    }
-                }
-            });
-            
-            // Update document language
-            document.documentElement.lang = lang;
-        }
+      <fieldset>
+        <legend data-t="lgTrees">Kerstbomen</legend>
+        <div class="qty-row">
+          <div class="label">
+            <strong data-t="tree">Kerstboom</strong>
+            <span><span id="unitPrice"></span> <span data-t="perTree">per boom</span></span>
+          </div>
+          <div class="stepper">
+            <button type="button" id="minus" aria-label="–">−</button>
+            <output id="qty" aria-live="polite">1</output>
+            <button type="button" id="plus" aria-label="+">+</button>
+          </div>
+        </div>
+      </fieldset>
 
-        // Snowflake animation
-        function createSnowflake() {
-            const snowflake = document.createElement('div');
-            snowflake.classList.add('snowflake');
-            snowflake.innerHTML = '❄';
-            snowflake.style.left = Math.random() * 100 + 'vw';
-            snowflake.style.animationDuration = Math.random() * 3 + 4 + 's';
-            snowflake.style.opacity = Math.random() * 0.5;
-            document.body.appendChild(snowflake);
+      <fieldset>
+        <legend data-t="lgYou">Jouw gegevens</legend>
+        <div class="grid2">
+          <div class="field span2">
+            <label for="name" data-t="name">Naam + voornaam *</label>
+            <input id="name" name="name" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="email" data-t="email">E-mail *</label>
+            <input id="email" name="email" type="email" autocomplete="email" inputmode="email" required>
+          </div>
+          <div class="field">
+            <label for="phone" data-t="phone">Telefoon *</label>
+            <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required>
+          </div>
+        </div>
+      </fieldset>
 
-            setTimeout(() => {
-                if (snowflake && snowflake.parentNode) {
-                    snowflake.remove();
-                }
-            }, 10000);
-        }
+      <fieldset>
+        <label class="toggle">
+          <input type="checkbox" id="needsInvoice">
+          <span class="track"></span>
+          <span data-t="invoice">Ik wil een factuur ontvangen</span>
+        </label>
+        <div class="grid2 invoice-fields" id="invoiceFields">
+          <div class="field">
+            <label for="companyName" data-t="company">Bedrijfsnaam *</label>
+            <input id="companyName" autocomplete="organization" data-invoice>
+          </div>
+          <div class="field">
+            <label for="vatNumber" data-t="vat">BTW-nummer *</label>
+            <input id="vatNumber" placeholder="BE0123456789" data-invoice>
+          </div>
+          <div class="field span2">
+            <label for="address" data-t="address">Straat + nummer *</label>
+            <input id="address" autocomplete="street-address" data-invoice>
+          </div>
+          <div class="field">
+            <label for="postalCode" data-t="postal">Postcode *</label>
+            <input id="postalCode" autocomplete="postal-code" inputmode="numeric" data-invoice>
+          </div>
+          <div class="field">
+            <label for="city" data-t="city">Gemeente *</label>
+            <input id="city" autocomplete="address-level2" data-invoice>
+          </div>
+        </div>
+      </fieldset>
 
-        setInterval(createSnowflake, 1500);
+      <div class="summary">
+        <span data-t="total">Totaal</span>
+        <strong id="total">€ 70</strong>
+      </div>
 
-        // Initialize
-        switchLanguage('nl');
-    </script>
+      <button class="btn" type="submit" id="submitBtn">
+        <span data-t="pay">Doorgaan naar betaling</span>
+        <span aria-hidden="true">→</span>
+      </button>
+      <div class="alert" id="alert" role="alert"></div>
+      <p class="secure">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <span data-t="secure">Veilig betalen via Mollie</span>
+      </p>
+    </form>
+
+    <!-- gesloten -->
+    <div class="card center" id="closedCard" hidden>
+      <div class="badge warn">🎄</div>
+      <h2 data-t="closedTitle">Bestellingen gesloten</h2>
+      <p class="sub" data-t="closedText">Online bestellen kan momenteel niet. Wil je toch een kerstboom? Neem gerust contact op.</p>
+      <div class="contact">
+        <a id="mailLink"></a>
+        <a id="telLink"></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  © <span id="year"></span> RT2 · <span data-t="questions">Vragen?</span> <a id="footMail"></a>
+</footer>
+
+<script src="i18n.js"></script>
+<script>
+(function () {
+  const C = window.RT2_CONFIG;
+  const $ = id => document.getElementById(id);
+  let qty = 1;
+
+  // basis
+  $('logo').src = C.LOGO_URL;
+  $('year').textContent = new Date().getFullYear();
+  [$('mailLink'), $('footMail')].forEach(a => { a.href = 'mailto:' + C.CONTACT_EMAIL; a.textContent = C.CONTACT_EMAIL; });
+  $('mailLink').textContent = '✉️  ' + C.CONTACT_EMAIL;
+  $('telLink').href = 'tel:' + C.CONTACT_PHONE;
+  $('telLink').textContent = '📞  ' + C.CONTACT_PHONE.replace(/^\+32(\d{3})(\d{2})(\d{2})(\d{2})$/, '+32 $1 $2 $3 $4');
+
+  if (C.ORDERS_OPEN) $('orderForm').hidden = false; else $('closedCard').hidden = false;
+
+  const euro = n => '€ ' + (Number.isInteger(n) ? n : n.toFixed(2).replace('.', ','));
+  function render() {
+    $('qty').textContent = qty;
+    $('unitPrice').textContent = euro(C.PRICE_PER_TREE);
+    $('total').textContent = euro(C.PRICE_PER_TREE * qty);
+    $('minus').disabled = qty <= 1;
+    $('plus').disabled = qty >= C.MAX_QTY;
+  }
+  $('minus').onclick = () => { qty = Math.max(1, qty - 1); render(); };
+  $('plus').onclick = () => { qty = Math.min(C.MAX_QTY, qty + 1); render(); };
+  render();
+
+  // factuur
+  $('needsInvoice').addEventListener('change', e => {
+    $('invoiceFields').classList.toggle('show', e.target.checked);
+    document.querySelectorAll('[data-invoice]').forEach(i => i.required = e.target.checked);
+  });
+
+  // validatie
+  function validate() {
+    let first = null;
+    $('orderForm').querySelectorAll('input:not([type=checkbox])').forEach(i => {
+      const bad = i.required && !i.checkValidity();
+      i.setAttribute('aria-invalid', bad ? 'true' : 'false');
+      if (bad && !first) first = i;
+    });
+    if (first) first.focus();
+    return !first;
+  }
+  $('orderForm').addEventListener('input', e => {
+    if (e.target.getAttribute('aria-invalid') === 'true' && e.target.checkValidity()) e.target.setAttribute('aria-invalid', 'false');
+  });
+
+  const newRef = () => (crypto.randomUUID ? crypto.randomUUID()
+    : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2));
+  let ref = newRef();
+
+  // versturen
+  let busy = false;
+  $('orderForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    if (busy) return;
+    $('alert').classList.remove('show');
+    if (!validate()) return;
+
+    busy = true;
+    const btn = $('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span><span>' + RT2_I18N.t('loading') + '</span>';
+
+    const inv = $('needsInvoice').checked;
+    const v = id => $(id).value.trim();
+    const data = {
+      action: 'createPayment', ref: ref, quantity: qty, language: RT2_I18N.lang,
+      name: v('name'), email: v('email'), phone: v('phone'), needsInvoice: inv,
+      companyName: inv ? v('companyName') : '', vatNumber: inv ? v('vatNumber') : '',
+      address: inv ? v('address') : '', postalCode: inv ? v('postalCode') : '', city: inv ? v('city') : ''
+    };
+
+    try {
+      const res = await fetch(C.APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+      const out = await res.json();
+      if (out.error || !out.checkoutUrl) throw new Error(out.error || 'no checkout');
+      window.location.href = out.checkoutUrl;
+    } catch (err) {
+      console.error(err);
+      ref = newRef();
+      $('alert').textContent = RT2_I18N.t('error');
+      $('alert').classList.add('show');
+      btn.disabled = false;
+      btn.innerHTML = '<span>' + RT2_I18N.t('pay') + '</span><span aria-hidden="true">→</span>';
+      busy = false;
+    }
+  });
+})();
+</script>
 </body>
 </html>

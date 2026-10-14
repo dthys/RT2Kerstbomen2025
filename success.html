@@ -1,330 +1,108 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bestelling Bevestigd / Commande Confirmée</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f4c3a 0%, #1a5d4a 50%, #0d3d2f 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            width: 100%;
-            padding: 50px;
-            text-align: center;
-        }
-
-        .status-icon {
-            font-size: 80px;
-            margin-bottom: 30px;
-            animation: scaleIn 0.5s ease;
-        }
-
-        @keyframes scaleIn {
-            from {
-                transform: scale(0);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        h1 {
-            color: #0f4c3a;
-            margin-bottom: 20px;
-            font-size: 2rem;
-        }
-
-        .message {
-            color: #666;
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-
-        .order-info {
-            background: #f9f9f9;
-            padding: 25px;
-            border-radius: 12px;
-            margin: 30px 0;
-            text-align: left;
-            border-left: 4px solid #228B22;
-        }
-
-        .order-info h3 {
-            color: #0f4c3a;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .order-info p {
-            color: #333;
-            margin: 10px 0;
-        }
-
-        .order-info strong {
-            color: #0f4c3a;
-        }
-
-        .btn {
-            background: linear-gradient(45deg, #228B22, #32CD32);
-            color: white;
-            border: none;
-            padding: 15px 35px;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 20px;
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(34, 139, 34, 0.4);
-        }
-
-        .loading {
-            color: #228B22;
-            font-size: 1.2rem;
-            margin: 20px 0;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border: 4px solid rgba(34, 139, 34, 0.3);
-            border-radius: 50%;
-            border-top-color: #228B22;
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: 15px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .error-box {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            color: #856404;
-            padding: 20px;
-            border-radius: 12px;
-            margin: 20px 0;
-        }
-
-        .footer-logo {
-            margin-top: 40px;
-            opacity: 0.7;
-        }
-
-        .footer-logo img {
-            max-width: 80px;
-            height: auto;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RT2 Kerstbomen – Bestelling</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#14382b">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3 6 16h5l-6 8h22l-6-8h5z' fill='%2314382b'/%3E%3Crect x='14' y='24' width='4' height='5' fill='%23b3322a'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
 </head>
 <body>
-    <div class="container" id="statusContainer">
-        <div class="loading-spinner"></div>
-        <div class="loading">Bestelling verwerken... 🔄<br>Traitement de la commande...</div>
+
+<header class="topbar">
+  <a class="brand" href="./">
+    <img id="logo" alt="RT2" width="44" height="44">
+    <span>RT2</span>
+  </a>
+  <div class="lang" role="group" aria-label="Taal / Langue">
+    <button type="button" data-lang="nl" aria-pressed="true">NL</button>
+    <button type="button" data-lang="fr" aria-pressed="false">FR</button>
+  </div>
+</header>
+
+<main class="status-page">
+  <div class="card center" id="box" aria-live="polite">
+    <div class="badge wait" id="badge"><span class="spinner"></span></div>
+    <h2 id="title" data-t="waitTitle">Even geduld…</h2>
+    <p class="sub" id="text" data-t="waitText">We controleren je betaling bij Mollie.</p>
+
+    <dl class="details" id="details" hidden>
+      <div><dt data-t="dNr">Bestelnummer</dt><dd id="dNr"></dd></div>
+      <div><dt data-t="dQty">Aantal bomen</dt><dd id="dQty"></dd></div>
+      <div><dt data-t="dTotal">Betaald</dt><dd id="dTotal"></dd></div>
+    </dl>
+
+    <a class="btn" id="againBtn" href="./" hidden><span data-t="again">Opnieuw proberen</span></a>
+    <a class="btn secondary" id="homeBtn" href="./" hidden><span data-t="home">Terug naar de website</span></a>
+    <div class="contact" id="contact" hidden>
+      <a id="mailLink"></a>
     </div>
+  </div>
+</main>
 
-    <!-- Hidden iframe for form submission -->
-    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+<script src="i18n.js"></script>
+<script>
+(function () {
+  const C = window.RT2_CONFIG;
+  const $ = id => document.getElementById(id);
+  $('logo').src = C.LOGO_URL;
+  $('mailLink').href = 'mailto:' + C.CONTACT_EMAIL;
+  $('mailLink').textContent = '✉️  ' + C.CONTACT_EMAIL;
 
-    <script>
-        // Your Google Form URL (the formResponse URL)
-        const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScIGSrCx53X3yTJIrydkwQL8AkFHOMRkrwo2c5FtNz2seK9SQ/formResponse';
-        
-        const translations = {
-            nl: {
-                success_title: 'Betaling Geslaagd!',
-                success_message: 'Hartelijk dank voor je bestelling! Je betaling is succesvol verwerkt.',
-                email_message: 'Je ontvangt binnen enkele minuten een bevestigingsmail met alle details. Controleer u spam folder!',
-                order_details: 'Bestelling Details',
-                order_number: 'Bestelnummer:',
-                name: 'Naam:',
-                email: 'Email:',
-                quantity: 'Aantal kerstbomen:',
-                total: 'Totaal bedrag:',
-                new_order: '🎄 Nieuwe bestelling plaatsen',
-                processing: 'Bestelling verwerken...',
-                error_title: 'Er ging iets mis',
-                error_message: 'We konden je bestelling niet voltooien.',
-                retry: '🔄 Opnieuw Proberen'
-            },
-            fr: {
-                success_title: 'Paiement Réussi!',
-                success_message: 'Merci beaucoup pour votre commande! Votre paiement a été traité avec succès.',
-                email_message: 'Vous recevrez un email de confirmation avec tous les détails dans quelques minutes. Vérifiez votre spam!',
-                order_details: 'Détails de la commande',
-                order_number: 'Numéro de commande:',
-                name: 'Nom:',
-                email: 'Email:',
-                quantity: 'Nombre de sapins:',
-                total: 'Montant total:',
-                new_order: '🎄 Passer une nouvelle commande',
-                processing: 'Traitement de la commande...',
-                error_title: 'Quelque chose s\'est mal passé',
-                error_message: 'Nous n\'avons pas pu finaliser votre commande.',
-                retry: '🔄 Réessayer'
-            }
-        };
+  const ref = new URLSearchParams(location.search).get('ref');
+  let state = 'wait';
+  let last = null;
 
-        function submitToGoogleForm(orderData) {
-            console.log('Submitting order to Google Form:', orderData);
+  const VIEWS = {
+    wait:    { badge: 'wait', icon: '<span class="spinner"></span>', title: 'waitTitle', text: 'waitText' },
+    paid:    { badge: 'ok',   icon: '✓', title: 'paidTitle',    text: 'paidText' },
+    pending: { badge: 'warn', icon: '⏳', title: 'pendingTitle', text: 'pendingText' },
+    failed:  { badge: 'err',  icon: '✕', title: 'failTitle',    text: 'failText' },
+    unknown: { badge: 'warn', icon: '?', title: 'unknownTitle', text: 'unknownText' }
+  };
 
-            // Create a form dynamically
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = GOOGLE_FORM_URL;
-            form.target = 'hidden_iframe';
+  function show(s, data) {
+    state = s; if (data) last = data;
+    const v = VIEWS[s];
+    $('badge').className = 'badge ' + v.badge;
+    $('badge').innerHTML = v.icon;
+    $('title').dataset.t = v.title; $('title').textContent = RT2_I18N.t(v.title);
+    $('text').dataset.t = v.text;   $('text').textContent = RT2_I18N.t(v.text);
+    $('details').hidden = s !== 'paid';
+    $('againBtn').hidden = s !== 'failed';
+    $('homeBtn').hidden = s === 'wait' || s === 'failed';
+    $('contact').hidden = s !== 'unknown' && s !== 'pending';
+    if (s === 'paid' && last) {
+      $('dNr').textContent = last.orderNumber;
+      $('dQty').textContent = last.quantity;
+      $('dTotal').textContent = '€ ' + Number(last.total).toFixed(2).replace('.', ',');
+    }
+  }
+  document.addEventListener('langchange', () => show(state));
 
-            // Add all the form fields
-            const fields = {
-                'entry.2047649140': orderData.name,
-                'entry.236342541': orderData.email,
-                'entry.1872094456': orderData.phone,
-                'entry.940252222': orderData.quantity.toString(),
-                'entry.204874220': '€' + orderData.totalPrice,
-                'entry.157753956': orderData.orderNumber,
-                'entry.1997491153': orderData.needsInvoice ? 'Yes' : 'No',
-                'entry.927105195': orderData.language.toUpperCase(),
-                'entry.790720897': orderData.paymentId || ''
-            };
+  if (!ref) { document.addEventListener('DOMContentLoaded', () => show('unknown')); return; }
 
-            // Add company details if invoice needed
-            if (orderData.needsInvoice) {
-                fields['entry.195252341'] = orderData.companyName || '';
-                fields['entry.26035493'] = orderData.vatNumber || '';
-                fields['entry.1560784429'] = orderData.address || '';
-                fields['entry.1447391829'] = orderData.city || '';
-                fields['entry.841053905'] = orderData.postalCode || '';
-            }
-
-            // Create hidden input fields
-            Object.keys(fields).forEach(key => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = key;
-                input.value = fields[key];
-                form.appendChild(input);
-            });
-
-            // Append form to body and submit
-            document.body.appendChild(form);
-            form.submit();
-
-            console.log('Form submitted successfully');
-
-            // Show success immediately (form submission happens in background)
-            setTimeout(() => {
-                showSuccess(orderData, orderData.language);
-                // Clean up
-                localStorage.removeItem('pendingOrder');
-                localStorage.removeItem('orderLanguage');
-                document.body.removeChild(form);
-            }, 1000);
-        }
-
-        function processOrder() {
-            try {
-                // Get stored order data
-                const orderDataStr = localStorage.getItem('pendingOrder');
-                const lang = localStorage.getItem('orderLanguage') || 'nl';
-
-                console.log('Retrieved order data:', orderDataStr);
-
-                if (!orderDataStr) {
-                    showError('Geen bestellingsgegevens gevonden / Aucune donnée de commande trouvée', lang);
-                    return;
-                }
-
-                const orderData = JSON.parse(orderDataStr);
-                console.log('Parsed order data:', orderData);
-
-                // Check if we have payment ID
-                if (!orderData.paymentId) {
-                    showError('Geen betalings-ID gevonden / Aucun ID de paiement trouvé', lang);
-                    return;
-                }
-
-                // Submit to Google Form
-                submitToGoogleForm(orderData);
-
-            } catch (error) {
-                console.error('Error processing order:', error);
-                const lang = localStorage.getItem('orderLanguage') || 'nl';
-                showError(error.message, lang);
-            }
-        }
-
-        function showSuccess(orderData, lang) {
-            const t = translations[lang];
-            
-            document.getElementById('statusContainer').innerHTML = `
-                <div class="status-icon">✅</div>
-                <h1>${t.success_title}</h1>
-                <p class="message">${t.success_message}</p>
-                <p class="message">${t.email_message}</p>
-                
-                <div class="order-info">
-                    <h3>${t.order_details}</h3>
-                    <p><strong>${t.order_number}</strong> ${orderData.orderNumber}</p>
-                    <p><strong>${t.name}</strong> ${orderData.name}</p>
-                    <p><strong>${t.email}</strong> ${orderData.email}</p>
-                    <p><strong>${t.quantity}</strong> ${orderData.quantity}</p>
-                    <p><strong>${t.total}</strong> €${orderData.totalPrice}</p>
-                </div>
-
-                <a href="index.html" class="btn">${t.new_order}</a>
-
-                <div class="footer-logo">
-                    <img src="https://i.ibb.co/Dn8q54B/cropped-logortbround-1.png" alt="RT2 Logo">
-                </div>
-            `;
-        }
-
-        function showError(message, lang = 'nl') {
-            const t = translations[lang];
-            
-            document.getElementById('statusContainer').innerHTML = `
-                <div class="status-icon">⚠️</div>
-                <h1>${t.error_title}</h1>
-                <div class="error-box">
-                    <p>${t.error_message}</p>
-                    <p style="margin-top: 10px; font-size: 0.9rem;">${message}</p>
-                </div>
-                <a href="index.html" class="btn">${t.retry}</a>
-            `;
-        }
-
-        // Start processing when page loads
-        window.addEventListener('DOMContentLoaded', processOrder);
-    </script>
+  let tries = 0;
+  async function poll() {
+    tries++;
+    try {
+      const res = await fetch(C.APPS_SCRIPT_URL + '?action=status&ref=' + encodeURIComponent(ref));
+      const d = await res.json();
+      if (d.status === 'paid') return show('paid', d);
+      if (['canceled', 'expired', 'failed'].includes(d.status)) return show('failed', d);
+      if (d.status === 'unknown' && tries >= 3) return show('unknown');
+    } catch (e) { console.warn(e); }
+    if (tries < 12) setTimeout(poll, 2500);   // ± 30 seconden
+    else show('pending');
+  }
+  poll();
+})();
+</script>
 </body>
 </html>
