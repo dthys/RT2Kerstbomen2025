@@ -147,6 +147,18 @@ legend {
 .invoice-fields { display: none; margin-top: 16px; }
 .invoice-fields.show { display: grid; }
 
+/* payment methods */
+.methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.method { position: relative; cursor: pointer; }
+.method input { position: absolute; opacity: 0; pointer-events: none; }
+.method span {
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: 14px 8px; border: 1px solid var(--line); border-radius: 12px; background: #fff;
+  font-weight: 600; font-size: .95rem; color: var(--ink); transition: border-color .15s, box-shadow .15s;
+}
+.method input:checked + span { border-color: var(--pine); box-shadow: 0 0 0 3px rgba(47, 107, 79, .18); color: var(--forest); }
+.method input:focus-visible + span { box-shadow: 0 0 0 4px rgba(47, 107, 79, .25); }
+
 /* summary */
 .summary {
   margin-top: 28px; padding-top: 20px; border-top: 1px dashed var(--line);

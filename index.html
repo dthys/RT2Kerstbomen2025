@@ -160,6 +160,15 @@
         </div>
       </fieldset>
 
+      <fieldset>
+        <legend data-t="lgPay">Betaalmethode</legend>
+        <div class="methods" role="radiogroup">
+          <label class="method"><input type="radio" name="method" value="bancontact" checked><span data-t="mBancontact">Bancontact</span></label>
+          <label class="method"><input type="radio" name="method" value="creditcard"><span data-t="mCard">Kaart</span></label>
+          <label class="method"><input type="radio" name="method" value="paypal"><span data-t="mPaypal">PayPal</span></label>
+        </div>
+      </fieldset>
+
       <div class="summary">
         <span data-t="total">Totaal</span>
         <strong id="total">€ 70</strong>
@@ -279,6 +288,7 @@
     const v = id => $(id).value.trim();
     const data = {
       action: 'createPayment', ref: ref, quantity: qty, language: RT2_I18N.lang,
+      method: (document.querySelector('input[name=method]:checked') || {}).value || '',
       name: v('name'), email: v('email'), phone: v('phone'), needsInvoice: inv,
       companyName: inv ? v('companyName') : '', vatNumber: inv ? v('vatNumber') : '',
       address: inv ? v('address') : '', postalCode: inv ? v('postalCode') : '', city: inv ? v('city') : ''
