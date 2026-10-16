@@ -38,6 +38,15 @@
       <div><dt data-t="dTotal">Betaald</dt><dd id="dTotal"></dd></div>
     </dl>
 
+    <a class="pickup" id="pickupBox" href="https://www.google.com/maps/search/?api=1&query=Kartuizersweg+1A+2550+Kontich" target="_blank" rel="noopener" hidden>
+      <span class="pickup-icon" aria-hidden="true">📍</span>
+      <div>
+        <small data-t="pickupLabel">Afhaling</small>
+        <strong data-t="pickupWhen">Zaterdag 5 december · 10u – 12u</strong>
+        <span>BLUEZE INTERFOOD NV · Kartuizersweg 1A, 2550 Kontich</span>
+      </div>
+    </a>
+
     <a class="btn" id="againBtn" href="./" hidden><span data-t="again">Opnieuw proberen</span></a>
     <a class="btn secondary" id="homeBtn" href="./" hidden><span data-t="home">Terug naar de website</span></a>
     <div class="contact" id="contact" hidden>
@@ -75,6 +84,7 @@
     $('title').dataset.t = v.title; $('title').textContent = RT2_I18N.t(v.title);
     $('text').dataset.t = v.text;   $('text').textContent = RT2_I18N.t(v.text);
     $('details').hidden = s !== 'paid';
+    $('pickupBox').hidden = s !== 'paid';
     $('againBtn').hidden = s !== 'failed';
     $('homeBtn').hidden = s === 'wait' || s === 'failed';
     $('contact').hidden = s !== 'unknown' && s !== 'pending';

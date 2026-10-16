@@ -89,6 +89,18 @@ h1 em { font-style: italic; color: var(--pine); }
 .impact strong { display: block; color: var(--forest); font-weight: 700; }
 .impact span { color: var(--muted); font-size: .95rem; }
 
+.pickup {
+  display: flex; gap: 14px; align-items: center; margin-top: 12px; max-width: 32rem;
+  padding: 14px 18px; border-radius: 14px; background: var(--forest); color: #fff; text-decoration: none;
+  text-align: left;
+}
+.pickup:hover { background: var(--forest-2); }
+.pickup-icon { font-size: 1.6rem; line-height: 1; }
+.pickup small { display: block; font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+.pickup strong { display: block; font-size: 1.05rem; }
+.pickup span { display: block; font-size: .9rem; opacity: .85; }
+.status-page .pickup { margin: 20px 0 0; max-width: none; }
+
 /* ── card / form ── */
 .card {
   background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
