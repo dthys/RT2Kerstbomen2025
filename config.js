@@ -7,7 +7,7 @@ window.RT2_CONFIG = {
   APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxfs5wsxA9uspeaJeuWNeweFHQNZ6wpxg0w6WEpCdxCNf64NHM1uGy-fAG95Tg3vfpX3Q/exec',
 
   // true = bestelformulier tonen, false = "bestellingen gesloten"-melding
-  ORDERS_OPEN: true,
+  ORDERS_OPEN: false,
 
   // Enkel voor weergave. Het échte bedrag staat in Code.gs (PRICE_PER_TREE) – hou ze gelijk.
   PRICE_PER_TREE: 70,
