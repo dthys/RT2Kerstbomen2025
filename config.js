@@ -14,6 +14,5 @@ window.RT2_CONFIG = {
   MAX_QTY: 20,
 
   CONTACT_EMAIL: 'd_thys@hotmail.com',
-  CONTACT_PHONE: '+32474048989',
   LOGO_URL: 'https://i.ibb.co/4RYgfdSd/cropped-logortbround.png'
 };

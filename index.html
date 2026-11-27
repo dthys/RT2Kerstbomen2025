@@ -201,7 +201,6 @@
       <p class="sub" data-t="closedText">Online bestellen kan momenteel niet. Wil je toch een kerstboom? Neem gerust contact op.</p>
       <div class="contact">
         <a id="mailLink"></a>
-        <a id="telLink"></a>
       </div>
     </div>
   </section>
@@ -223,8 +222,6 @@
   $('year').textContent = new Date().getFullYear();
   [$('mailLink'), $('footMail')].forEach(a => { a.href = 'mailto:' + C.CONTACT_EMAIL; a.textContent = C.CONTACT_EMAIL; });
   $('mailLink').textContent = '✉️  ' + C.CONTACT_EMAIL;
-  $('telLink').href = 'tel:' + C.CONTACT_PHONE;
-  $('telLink').textContent = '📞  ' + C.CONTACT_PHONE.replace(/^\+32(\d{3})(\d{2})(\d{2})(\d{2})$/, '+32 $1 $2 $3 $4');
 
   if (C.ORDERS_OPEN) $('orderForm').hidden = false; else $('closedCard').hidden = false;
 
